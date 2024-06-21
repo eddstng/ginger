@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+  psql:
+    image: postgres:13
+    container_name: psql_db
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    volumes:
+      # - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - pg_data:/var/lib/postgresql/data
+      - ./database/migrations:/docker-entrypoint-initdb.d/
+
+    ports:
+      - "5432:5432"
+    expose:
+      - 5432
+    networks:
+      - ginger-network
+
+networks:
+  ginger-network:
+    driver: bridge
+
+volumes:
+  pg_data:
