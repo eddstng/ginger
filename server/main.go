@@ -3,13 +3,11 @@ package main
 import (
 	"fmt"
 	"log"
-	"server/db"
-	"server/handlers"
-
 	"net/http"
+	"os"
+	"server/db"
+	"server/router"
 
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
 	"github.com/joho/godotenv"
 )
 
@@ -19,19 +17,13 @@ func main() {
 		panic(err.Error())
 	}
 	fmt.Println("Starting server...")
-	err = db.InitDBClient()
+	databaseURL := os.Getenv("DATABASE_URL")
+	err = db.InitDBClient(databaseURL)
 	if err != nil {
 		log.Fatalf("Error: %v\n", err)
 	}
 	defer db.CloseDBClient()
-
-	r := chi.NewRouter()
-	r.Use(middleware.Logger)
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Welcome to the server!"))
-	})
-	r.Get("/items", handlers.GetItemsHandler)
-
+	r := router.InitializeChiRouter()
 	fmt.Println("Server started on http://localhost:3000")
 	http.ListenAndServe(":3000", r)
 }
