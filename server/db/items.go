@@ -3,25 +3,19 @@ package db
 import (
 	"context"
 	"fmt"
+	"server/models"
 )
 
-type Item struct {
-	ID         int     `json:"id"`
-	NameEng    string  `json:"name_eng"`
-	Price      float64 `json:"price"`
-	CategoryID int     `json:"category_id"`
-}
-
-func GetItems() ([]Item, error) {
+func GetItems() ([]models.Item, error) {
 	rows, err := DBClient.Query(context.Background(), "SELECT id, name_eng, price FROM items")
 	if err != nil {
 		return nil, fmt.Errorf("failed to query items table: %w", err)
 	}
 	defer rows.Close()
 
-	var items []Item
+	var items []models.Item
 	for rows.Next() {
-		var item Item
+		var item models.Item
 		err := rows.Scan(&item.ID, &item.NameEng, &item.Price)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan items row: %w", err)

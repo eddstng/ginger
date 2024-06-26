@@ -8,23 +8,34 @@ The API server for `ginger/client`. Built using Go and Chi.
 Go to the project directory
 
 ```bash
-  cd ginger/server
+$ cd ginger/server
 ```
 
 Build docker image
 
 ```bash
-  docker build -t ginger-server .
+$ docker build -t ginger-server .
 ```
 
 Run the docker container
 
 ```bash
-  docker run -p 3000:3000 ginger-server
+$ docker run -p 3000:3000 ginger-server
 ```
 
 Call the server
 
 ```bash
-  curl http://localhost:3000/
+$ curl http://localhost:3000/
 ```
+
+## Running Tests
+
+#### Ginger API
+To run tests for the Ginger API, run the following commands
+
+```bash
+$ cd server
+$ go test ./... -v -cover
+```
+

@@ -3,11 +3,31 @@ package db
 import (
 	"context"
 	"fmt"
+	"server/models"
 
 	"github.com/jackc/pgx/v5"
 )
 
 var DBClient *pgx.Conn
+
+type DBGetter interface {
+	GetItems() ([]models.Item, error)
+}
+
+type DBStruct struct{}
+
+func NewDBGetter() DBGetter {
+	return &DBStruct{}
+}
+
+func (db *DBStruct) GetItems() ([]models.Item, error) {
+	items, err := GetItems()
+	if err != nil {
+		fmt.Println("Error in DBStruct GetItems method.")
+		return nil, err
+	}
+	return items, nil
+}
 
 func InitDBClient(databaseURL string) error {
 	fmt.Println("Initializing database connection...")
