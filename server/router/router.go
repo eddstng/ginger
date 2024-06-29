@@ -1,7 +1,6 @@
 package router
 
 import (
-	"server/db"
 	"server/handlers"
 
 	"net/http"
@@ -16,7 +15,6 @@ func InitializeChiRouter() *chi.Mux {
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Ginger API"))
 	})
-	dbGetter := db.NewDBGetter()
-	r.Get("/items", handlers.GetItemsHandler(dbGetter))
+	r.Get("/items", handlers.GetItemsHandler())
 	return r
 }

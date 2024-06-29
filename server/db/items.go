@@ -4,15 +4,22 @@ import (
 	"context"
 	"fmt"
 	"server/models"
+
+	"github.com/jackc/pgx/v5"
 )
 
-func GetItems() ([]models.Item, error) {
-	rows, err := DBClient.Query(context.Background(), "SELECT id, name_eng, price FROM items")
+type ItemsTable struct{}
+
+func (ItemsTable) Query(contextBackground context.Context) (pgx.Rows, error) {
+	rows, err := DBClient.Query(contextBackground, "SELECT id, name_eng, price FROM items")
 	if err != nil {
 		return nil, fmt.Errorf("failed to query items table: %w", err)
 	}
-	defer rows.Close()
+	return rows, nil
+}
 
+func (ItemsTable) Scan(rows pgx.Rows) ([]models.Item, error) {
+	defer rows.Close()
 	var items []models.Item
 	for rows.Next() {
 		var item models.Item
@@ -22,10 +29,8 @@ func GetItems() ([]models.Item, error) {
 		}
 		items = append(items, item)
 	}
-
 	if rows.Err() != nil {
 		return nil, rows.Err()
 	}
-
 	return items, nil
 }
