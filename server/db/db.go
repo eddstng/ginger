@@ -7,20 +7,44 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-var DBClient *pgx.Conn
+var DBClient DBClientInterface
 
-func InitDBClient(databaseURL string) error {
+type DBClientInterface interface {
+	Query(ctx context.Context, sql string, args ...interface{}) (pgx.Rows, error)
+	Close(ctx context.Context) error
+}
+
+type PgxDBClient struct {
+	conn *pgx.Conn
+}
+
+func (c *PgxDBClient) Query(ctx context.Context, sql string, args ...interface{}) (pgx.Rows, error) {
+	return c.conn.Query(ctx, sql, args...)
+}
+
+func (c *PgxDBClient) Close(ctx context.Context) error {
+	return c.conn.Close(ctx)
+}
+
+func SetDBClient(client DBClientInterface) {
+	DBClient = client
+}
+
+func InitDBClientFromURL(databaseURL string) error {
 	fmt.Println("Initializing database connection...")
-	var err error
-	DBClient, err = pgx.Connect(context.Background(), databaseURL)
+	conn, err := pgx.Connect(context.Background(), databaseURL)
 	if err != nil {
-		return fmt.Errorf("failed to initialize DB client%s: %w", databaseURL, err)
+		return fmt.Errorf("failed to initialize DB client %s: %w", databaseURL, err)
 	}
+	SetDBClient(conn)
 	fmt.Println("Database connected!")
 	return nil
 }
 
 func CloseDBClient() error {
+	if DBClient == nil {
+		return nil
+	}
 	err := DBClient.Close(context.Background())
 	if err != nil {
 		return fmt.Errorf("failed to close DB client: %w", err)

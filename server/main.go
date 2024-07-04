@@ -18,7 +18,7 @@ func main() {
 	}
 	fmt.Println("Starting server...")
 	databaseURL := os.Getenv("DATABASE_URL")
-	err = db.InitDBClient(databaseURL)
+	err = db.InitDBClientFromURL(databaseURL)
 	if err != nil {
 		log.Fatalf("Error: %v\n", err)
 	}
