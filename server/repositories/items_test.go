@@ -1,22 +1,21 @@
-package unit_test
+package repositories
 
 import (
 	"context"
 	"server/db"
-	"server/handlers"
+	test_helpers "server/tests/helpers"
 	"testing"
 
-	"github.com/pashagolub/pgxmock/v4"
 	"github.com/stretchr/testify/require"
 )
 
-func TestGetItems(t *testing.T) {
-	mock, err := pgxmock.NewConn()
+func TestQueryAllItemsWithMockedDB(t *testing.T) {
+	mock, err := test_helpers.SetupPgxMock()
 	require.NoError(t, err)
 	defer mock.Close(context.Background())
 	db.SetDBClient(mock)
-	mock.ExpectQuery("SELECT id, name_eng, price FROM items").WillReturnRows(mock.NewRows([]string{"id", "name_eng", "price"}).AddRow(1, "item1", float64(100)))
-	items, err := handlers.GetItems("SELECT id, name_eng, price FROM items")
+	test_helpers.MockGetItemsQuery(mock)
+	items, err := QueryAllItems()
 	require.NoError(t, err)
 	require.NotNil(t, items)
 	require.Len(t, items, 1)

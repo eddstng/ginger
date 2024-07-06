@@ -14,18 +14,6 @@ type DBClientInterface interface {
 	Close(ctx context.Context) error
 }
 
-type PgxDBClient struct {
-	conn *pgx.Conn
-}
-
-func (c *PgxDBClient) Query(ctx context.Context, sql string, args ...interface{}) (pgx.Rows, error) {
-	return c.conn.Query(ctx, sql, args...)
-}
-
-func (c *PgxDBClient) Close(ctx context.Context) error {
-	return c.conn.Close(ctx)
-}
-
 func SetDBClient(client DBClientInterface) {
 	DBClient = client
 }
