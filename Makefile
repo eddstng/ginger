@@ -3,7 +3,7 @@
 test:
 	docker compose down psql_test
 	docker compose up -d psql_test
-	sleep 1
+	sleep 5
 	cd server && go test ./... -cover
 	docker compose down psql_test
 

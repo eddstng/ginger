@@ -35,7 +35,18 @@ func TestInsertItemWithMockedDB(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, items)
 	require.Len(t, items, 1)
-	require.Equal(t, 111, items[0].ID)
-	require.Equal(t, "test_item_insert", items[0].NameEng)
-	require.Equal(t, float64(111), items[0].Price)
+	require.Equal(t, models.Item{ID: 111, NameEng: "test_item_insert", Price: 111, CategoryID: 111}, items[0])
+}
+
+func TestUpdateItemWithMockedDB(t *testing.T) {
+	mock, err := test_helpers.SetupPgxMock()
+	require.NoError(t, err)
+	defer mock.Close(context.Background())
+	db.SetDBClient(mock)
+	test_helpers.MockUpdateItemQuery(mock, models.Item{ID: 222, NameEng: "test_item_update", Price: 222, CategoryID: 222})
+	items, err := UpdateItem(models.Item{ID: 222, NameEng: "test_item_update", Price: 222, CategoryID: 222})
+	require.NoError(t, err)
+	require.NotNil(t, items)
+	require.Len(t, items, 1)
+	require.Equal(t, models.Item{ID: 222, NameEng: "test_item_update", Price: 222, CategoryID: 222}, items[0])
 }

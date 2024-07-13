@@ -20,23 +20,46 @@ func GetItemsHandler() http.HandlerFunc {
 	}
 }
 
-func PostItemsHandler() http.HandlerFunc {
+func PostItemHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var item models.Item
 		err := json.NewDecoder(r.Body).Decode(&item)
 		if err != nil {
-			fmt.Printf("Error decoding JSON in PostItemsHandler: %v\n", err)
+			fmt.Printf("Error decoding JSON in PostItemHandler: %v\n", err)
 			http.Error(w, fmt.Sprintf("Error decoding JSON: %v", err), http.StatusBadRequest)
 			return
 		}
 
-		_, err = repositories.InsertItem(item)
+		items, err := repositories.InsertItem(item)
 		if err != nil {
-			fmt.Printf("Error inserting item in PostItemsHandler: %v\n", err)
+			fmt.Printf("Error inserting item in PostItemHandler: %v\n", err)
 			http.Error(w, fmt.Sprintf("Error inserting item: %v", err), http.StatusInternalServerError)
 			return
 		}
 
-		w.WriteHeader(http.StatusCreated)
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(items)
+	}
+}
+
+func PutItemHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var item models.Item
+		err := json.NewDecoder(r.Body).Decode(&item)
+		if err != nil {
+			fmt.Printf("Error decoding JSON in UpdateItemHandler: %v\n", err)
+			http.Error(w, fmt.Sprintf("Error decoding JSON: %v", err), http.StatusBadRequest)
+			return
+		}
+
+		items, err := repositories.UpdateItem(item)
+		if err != nil {
+			fmt.Printf("Error updating item in UpdateItemHandler: %v\n", err)
+			http.Error(w, fmt.Sprintf("Error updating item: %v", err), http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(items)
 	}
 }
