@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"server/models"
 	"server/repositories"
 )
 
@@ -11,10 +12,31 @@ func GetItemsHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		items, err := repositories.QueryAllItems()
 		if err != nil {
-			fmt.Printf("Error in GetItemsHandler: %v\n", err)
-			http.Error(w, fmt.Sprintf("Error in GetItemsHandler: %v", err), http.StatusInternalServerError)
+			fmt.Printf("Error querying database in GetItemsHandler: %v\n", err)
+			http.Error(w, fmt.Sprintf("Error querying database: %v", err), http.StatusInternalServerError)
 		}
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(items)
+	}
+}
+
+func PostItemsHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var item models.Item
+		err := json.NewDecoder(r.Body).Decode(&item)
+		if err != nil {
+			fmt.Printf("Error decoding JSON in PostItemsHandler: %v\n", err)
+			http.Error(w, fmt.Sprintf("Error decoding JSON: %v", err), http.StatusBadRequest)
+			return
+		}
+
+		_, err = repositories.InsertItem(item)
+		if err != nil {
+			fmt.Printf("Error inserting item in PostItemsHandler: %v\n", err)
+			http.Error(w, fmt.Sprintf("Error inserting item: %v", err), http.StatusInternalServerError)
+			return
+		}
+
+		w.WriteHeader(http.StatusCreated)
 	}
 }

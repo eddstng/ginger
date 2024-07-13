@@ -16,5 +16,6 @@ func InitializeChiRouter() *chi.Mux {
 		w.Write([]byte("Ginger API"))
 	})
 	r.Get("/items", handlers.GetItemsHandler())
+	r.Post("/items", handlers.PostItemsHandler())
 	return r
 }

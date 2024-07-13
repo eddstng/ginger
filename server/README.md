@@ -3,6 +3,7 @@ The API server for `ginger/client`. Built using Go and Chi.
 
 ![Logo](https://i.imgur.com/JNGzVKY.png)
 
+
 ## Setup Instructions
 
 Go to the project directory
@@ -29,13 +30,20 @@ Call the server
 $ curl http://localhost:3000/
 ```
 
+## Environment Variables
+
+To run this project, you will need to add the following environment variables to your `server/.env` file.
+
+`DATABASE_URL`=`postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable`
+
+`TEST_DATABASE_URL`=`postgresql://test:test@localhost:6432/test?sslmode=disable`
+
 ## Running Tests
 
 #### Ginger API
 To run tests for the Ginger API, run the following commands
 
 ```bash
-$ cd server
 $ go test ./... -v -cover
 ```
 
