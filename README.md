@@ -11,6 +11,10 @@ To run this project, you will need to add the following environment variables to
 
 `TEST_DATABASE_URL`=`postgresql://test:test@localhost:6432/test?sslmode=disable`
 
+`DEFAULT_ITEM_CATEGORY_ID`=`1` 
+- Will default to 1 if value is not set.
+
+
 ## Running Tests
 
 #### Ginger API

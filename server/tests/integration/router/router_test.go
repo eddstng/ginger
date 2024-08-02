@@ -1,4 +1,4 @@
-package integration_test
+package router_test
 
 import (
 	"net/http"
