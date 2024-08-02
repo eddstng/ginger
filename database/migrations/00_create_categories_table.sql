@@ -7,6 +7,7 @@ CREATE TABLE categories (
 
 INSERT INTO categories 
 (name_eng,             name_oth) VALUES 
+('Custom',            'Custom'),
 ('Appetizers',         '頭 盤'),
 ('Soups',              '湯 羹 類'),
 ('Egg Foo Yung',       '芙 蓉 蛋 類'),
