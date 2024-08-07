@@ -35,7 +35,6 @@ func PostItemHandler() http.HandlerFunc {
 			http.Error(w, fmt.Sprintf("Error inserting item: %v", err), http.StatusInternalServerError)
 			return
 		}
-
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(items)
 	}
@@ -43,21 +42,19 @@ func PostItemHandler() http.HandlerFunc {
 
 func PutItemHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var itemInput models.ItemInput
+		var itemInput models.Item
 		err := json.NewDecoder(r.Body).Decode(&itemInput)
 		if err != nil {
 			fmt.Printf("Error decoding JSON in PutItemHandler: %v\n", err)
 			http.Error(w, fmt.Sprintf("Error decoding JSON: %v", err), http.StatusBadRequest)
 			return
 		}
-
 		items, err := repositories.UpdateItem(&itemInput)
 		if err != nil {
 			fmt.Printf("Error updating item in PutItemHandler: %v\n", err)
 			http.Error(w, fmt.Sprintf("Error putting item: %v", err), http.StatusInternalServerError)
 			return
 		}
-
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(items)
 	}

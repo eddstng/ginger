@@ -19,6 +19,7 @@ func QueryAllItems() ([]models.Item, error) {
 		return nil, fmt.Errorf("failed to query all items - Error: %v", err)
 	}
 	defer rows.Close()
+
 	items, err := scanItems(rows)
 	if err != nil {
 		return nil, fmt.Errorf("failed to scan items: %w", err)
@@ -29,23 +30,29 @@ func QueryAllItems() ([]models.Item, error) {
 func scanItems(rows pgx.Rows) ([]models.Item, error) {
 	defer rows.Close()
 	var items []models.Item
+
 	for rows.Next() {
 		var item models.Item
-		err := rows.Scan(&item.ID, &item.MenuID, &item.CategoryID, &item.Price, &item.NameEng, &item.NameOth, &item.Special, &item.Alcohol, &item.Custom, &item.Variant, &item.VariantDefault, &item.VariantPriceCharge)
+		err := rows.Scan(
+			&item.ID, &item.MenuID, &item.CategoryID, &item.Price, &item.NameEng, &item.NameOth,
+			&item.Special, &item.Alcohol, &item.Custom, &item.Variant, &item.VariantDefault, &item.VariantPriceCharge,
+		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan items row: %w", err)
 		}
 		items = append(items, item)
 	}
+
 	if rows.Err() != nil {
 		return nil, rows.Err()
 	}
+
 	return items, nil
 }
 
 func InsertItem(item *models.Item) ([]models.Item, error) {
 	query := "INSERT INTO items (menu_id, category_id, price, name_eng, name_oth, special, alcohol, custom, variant, variant_default, variant_price_charge) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING id, menu_id, category_id, price, name_eng, name_oth, special, alcohol, custom, variant, variant_default, variant_price_charge"
-	rows, err := db.DBClient.Query(context.Background(), query, item.MenuID, item.CategoryID, item.Price, item.NameEng, item.NameOth, item.Special, item.Alcohol, item.Custom, item.Variant, item.VariantDefault, item.VariantPriceCharge)
+	rows, err := db.DBClient.Query(context.Background(), query, *item.MenuID, *item.CategoryID, *item.Price, *item.NameEng, *item.NameOth, *item.Special, *item.Alcohol, *item.Custom, *item.Variant, *item.VariantDefault, *item.VariantPriceCharge)
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
@@ -61,27 +68,19 @@ func InsertItem(item *models.Item) ([]models.Item, error) {
 	defer rows.Close()
 	items, err := scanItems(rows)
 	if err != nil {
-		fmt.Println("wowza")
 		return nil, fmt.Errorf("failed to scan items: %w", err)
 	}
 	return items, nil
 }
 
-// we need to use iteminput here to allow the input to come in with null or empty fields
-func UpdateItem(itemInput *models.ItemInput) ([]models.Item, error) {
-
-	fmt.Println("where is the error?")
+func UpdateItem(itemInput *models.Item) ([]models.Item, error) {
 	item, err := QueryItem(*itemInput.ID)
-
-	fmt.Println(item)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query item: %v", err)
 	}
-
 	updateItemFields(item, itemInput)
 	query := "UPDATE items SET menu_id = $1, category_id = $2, price = $3, name_eng = $4, name_oth = $5, special = $6, alcohol = $7, custom = $8, variant = $9, variant_default = $10, variant_price_charge = $11 WHERE id = $12 RETURNING id, menu_id, category_id, price, name_eng, name_oth, special, alcohol, custom, variant, variant_default, variant_price_charge"
-	rows, err := db.DBClient.Query(context.Background(), query, item.MenuID, item.CategoryID, item.Price, item.NameEng, item.NameOth, item.Special, item.Alcohol, item.Custom, item.Variant, item.VariantDefault, item.VariantPriceCharge, item.ID)
-
+	rows, err := db.DBClient.Query(context.Background(), query, *item.MenuID, *item.CategoryID, *item.Price, *item.NameEng, *item.NameOth, *item.Special, *item.Alcohol, *item.Custom, *item.Variant, *item.VariantDefault, *item.VariantPriceCharge, *item.ID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update item: %v", err)
 	}
@@ -93,42 +92,42 @@ func UpdateItem(itemInput *models.ItemInput) ([]models.Item, error) {
 	return items, nil
 }
 
-func updateItemFields(item *models.Item, itemInput *models.ItemInput) {
+func updateItemFields(item *models.Item, itemInput *models.Item) {
 	if itemInput.ID != nil {
-		item.ID = *itemInput.ID
+		item.ID = itemInput.ID
 	}
 	if itemInput.MenuID != nil {
-		item.MenuID = *itemInput.MenuID
+		item.MenuID = itemInput.MenuID
 	}
 	if itemInput.CategoryID != nil {
-		item.CategoryID = *itemInput.CategoryID
+		item.CategoryID = itemInput.CategoryID
 	}
 	if itemInput.Price != nil {
-		item.Price = *itemInput.Price
+		item.Price = itemInput.Price
 	}
 	if itemInput.NameEng != nil {
-		item.NameEng = *itemInput.NameEng
+		item.NameEng = itemInput.NameEng
 	}
 	if itemInput.NameOth != nil {
-		item.NameOth = *itemInput.NameOth
+		item.NameOth = itemInput.NameOth
 	}
 	if itemInput.Special != nil {
-		item.Special = *itemInput.Special
+		item.Special = itemInput.Special
 	}
 	if itemInput.Alcohol != nil {
-		item.Alcohol = *itemInput.Alcohol
+		item.Alcohol = itemInput.Alcohol
 	}
 	if itemInput.Custom != nil {
-		item.Custom = *itemInput.Custom
+		item.Custom = itemInput.Custom
 	}
 	if itemInput.Variant != nil {
-		item.Variant = *itemInput.Variant
+		item.Variant = itemInput.Variant
 	}
 	if itemInput.VariantDefault != nil {
-		item.VariantDefault = *itemInput.VariantDefault
+		item.VariantDefault = itemInput.VariantDefault
 	}
 	if itemInput.VariantPriceCharge != nil {
-		item.VariantPriceCharge = *itemInput.VariantPriceCharge
+		item.VariantPriceCharge = itemInput.VariantPriceCharge
 	}
 }
 

@@ -41,30 +41,31 @@ func TestQueryAllItems(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, items)
 	require.Len(t, items, 18)
-	require.Equal(t, 1, items[0].ID)
-	require.Equal(t, 2, items[0].CategoryID)
-	require.Equal(t, "Spring Rolls", items[0].NameEng)
-	require.Equal(t, float64(5.99), items[0].Price)
+	require.Equal(t, 1, *items[0].ID)
+	require.Equal(t, 2, *items[0].CategoryID)
+	require.Equal(t, "Spring Rolls", *items[0].NameEng)
+	require.Equal(t, float64(5.99), *items[0].Price)
 }
 
 func TestInsertItem(t *testing.T) {
 	var testItem = models.NewDefaultItem()
-	testItem.NameEng = "TestInsertItem"
-	testItem.Price = float64(99.99)
+	testItem.NameEng = models.PtrString("TestInsertItem")
+	testItem.Price = models.PtrFloat64(99.99)
 
+	// the handler handles the item with nil values and turns it them into default values so we just use the NewDefaultItem here is ok.
 	items, err := repositories.InsertItem(testItem)
 	require.NoError(t, err)
 	require.NotNil(t, items)
 	require.Len(t, items, 1)
-	require.IsType(t, 1, items[0].ID)
-	require.Equal(t, "TestInsertItem", items[0].NameEng)
-	require.Equal(t, float64(99.99), items[0].Price)
+	require.IsType(t, 1, *items[0].ID)
+	require.Equal(t, "TestInsertItem", *items[0].NameEng)
+	require.Equal(t, float64(99.99), *items[0].Price)
 }
 
 func TestInsertItemCategoryIdFKFail(t *testing.T) {
 	var testItem = models.NewDefaultItem()
-	testItem.NameEng = "TestInsertItem"
-	testItem.CategoryID = 9999
+	testItem.NameEng = models.PtrString("TestInsertItem")
+	testItem.CategoryID = models.PtrInt(9999)
 
 	items, err := repositories.InsertItem(testItem)
 	require.Error(t, err)
@@ -74,7 +75,7 @@ func TestInsertItemCategoryIdFKFail(t *testing.T) {
 
 func TestInsertItemFailNameEngFail100Len(t *testing.T) {
 	var testItem = models.NewDefaultItem()
-	testItem.NameEng = "TestInsertItemFailTestInsertItemFailTestInsertItemFailTestInsertItemFailTestInsertItemFailTestInsertItemFail"
+	testItem.NameEng = models.PtrString("TestInsertItemFailTestInsertItemFailTestInsertItemFailTestInsertItemFailTestInsertItemFailTestInsertItemFail")
 
 	items, err := repositories.InsertItem(testItem)
 	require.Error(t, err)
@@ -86,19 +87,19 @@ func TestUpdateItem(t *testing.T) {
 	allItems, err := repositories.QueryAllItems()
 	require.NoError(t, err)
 	require.Len(t, allItems, 19)
-	require.Equal(t, "TestInsertItem", allItems[18].NameEng)
+	require.Equal(t, "TestInsertItem", *allItems[18].NameEng)
 
-	var testItemInput = models.NewDefaultItemInput()
-	*testItemInput.ID = allItems[18].ID
-	*testItemInput.NameEng = "TestUpdateItem"
-	*testItemInput.Price = 11.15
-	*testItemInput.NameEng = "TestUpdateItem"
+	var testItemInput = models.NewDefaultItemWithNil()
+	testItemInput.ID = allItems[18].ID
+	testItemInput.NameEng = models.PtrString("TestUpdateItem")
+	testItemInput.Price = models.PtrFloat64(11.15)
+	testItemInput.NameEng = models.PtrString("TestUpdateItem")
 
 	updatedItems, err := repositories.UpdateItem(testItemInput)
 	require.NoError(t, err)
 	require.NotNil(t, updatedItems)
 	require.Len(t, updatedItems, 1)
 	allItems, _ = repositories.QueryAllItems()
-	require.Equal(t, "TestUpdateItem", allItems[18].NameEng)
-	require.Equal(t, 11.15, allItems[18].Price)
+	require.Equal(t, "TestUpdateItem", *allItems[18].NameEng)
+	require.Equal(t, 11.15, *allItems[18].Price)
 }

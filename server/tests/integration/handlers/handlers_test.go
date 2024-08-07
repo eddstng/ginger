@@ -70,12 +70,23 @@ func TestGetItemsHandler(t *testing.T) {
 }
 
 func TestPostItemHandler(t *testing.T) {
-	var testItem = models.NewDefaultItem()
-	testItem.NameEng = "TestPostItem"
-	testItem.NameOth = "TestPostItemOther"
-	testItem.Price = float64(12.50)
-	test_helpers.MockInsertItemQuery(mock, testItem)
+	// This item is the item that we are expecting the handler to return from our request body below.
+	var mockThisItem = models.NewDefaultItem()
+	*mockThisItem.ID = 19
+	*mockThisItem.MenuID = 0
+	*mockThisItem.CategoryID = 1
+	*mockThisItem.Price = 12.50
+	*mockThisItem.NameEng = "TestPostItem"
+	*mockThisItem.NameOth = "TestPostItemOther"
+
+	test_helpers.MockInsertItemQuery(mock, *mockThisItem)
 	handler := handlers.PostItemHandler()
+
+	// This test item will be used for the http request body. The handler should deal with all of the nil values and leave those values unchanged.
+	var testItem = models.NewDefaultItemWithNil()
+	testItem.NameEng = models.PtrString("TestPostItem")
+	testItem.NameOth = models.PtrString("TestPostItemOther")
+	testItem.Price = models.PtrFloat64(12.50)
 
 	body, err := createItemJSONRequestBody(testItem)
 	require.NoError(t, err)
@@ -87,46 +98,49 @@ func TestPostItemHandler(t *testing.T) {
 	handler.ServeHTTP(rr, req)
 
 	require.Equal(t, http.StatusOK, rr.Code)
-	expectedBody := `[{"alcohol":false, "category_id":1, "custom":false, "id":19, "menu_id":0, "name_eng":"TestPostItem", "name_oth":"TestPostItemOther", "price":12.5, "special":false, "variant":"", "variant_default":false, "variant_price_charge":0}]`
+
+	jsonData, err := json.Marshal([]*models.Item{mockThisItem})
+	require.NoError(t, err)
+	expectedBody := string(jsonData)
 	require.JSONEq(t, expectedBody, rr.Body.String())
 }
 
 func TestPutItemHandler(t *testing.T) {
-	// testItemInput will be used as the JSON request body.
-	var testItemInput = models.NewDefaultItemInput()
-	*testItemInput.ID = 18
-	*testItemInput.MenuID = 99
-	*testItemInput.NameEng = "TestPutItem"
-	*testItemInput.NameOth = "TestPutItemOther"
-	*testItemInput.Price = float64(12.50)
-	*testItemInput.Custom = true
+	// Used as the request body for the http request.
+	var itemInput = models.NewDefaultItemWithNil()
+	itemInput.ID = models.PtrInt(18)
+	itemInput.MenuID = models.PtrInt(99)
+	itemInput.NameEng = models.PtrString("TestPutItem")
+	itemInput.NameOth = models.PtrString("TestPutItemOther")
+	itemInput.Price = models.PtrFloat64(float64(12.50))
+	itemInput.Custom = models.PtrBool(true)
 	// repositories.UpdateItem() will recognize the nil and not update the field value.
-	testItemInput.Alcohol = nil
+	itemInput.Alcohol = nil
 	// repositories.UpdateItem() will query the item we are trying to update. Here we mock it.
-	test_helpers.MockGetItemQuery(mock, *testItemInput.ID)
+	test_helpers.MockGetItemQuery(mock, *itemInput.ID)
 
-	// testItem values will match up with the expected query arguments.
-	// The query will be built based on the testitemInput. We use testItem to mock the update query and to set our expected values.
-	testItem := models.Item{
-		Alcohol:            true,
-		CategoryID:         models.GetDefaultCategoryID(),
-		Custom:             true,
-		ID:                 18,
-		MenuID:             99,
-		NameEng:            "TestPutItem",
-		NameOth:            "TestPutItemOther",
-		Price:              12.5,
-		Special:            false,
-		Variant:            "",
-		VariantDefault:     false,
-		VariantPriceCharge: 0,
+	// expectedItem values will match up with the expected query arguments in the test_helpers.MockGetItemQuery().
+	// The query will be built based on the itemInput. We use expectedItem to mock the update query and to set our expected values.
+	expectedItem := models.Item{
+		Alcohol:            models.PtrBool(true),
+		CategoryID:         models.PtrInt(17),
+		Custom:             models.PtrBool(true),
+		ID:                 models.PtrInt(18),
+		MenuID:             models.PtrInt(99),
+		NameEng:            models.PtrString("TestPutItem"),
+		NameOth:            models.PtrString("TestPutItemOther"),
+		Price:              models.PtrFloat64(12.5),
+		Special:            models.PtrBool(false),
+		Variant:            models.PtrString(""),
+		VariantDefault:     models.PtrBool(false),
+		VariantPriceCharge: models.PtrFloat64(0),
 	}
 
 	// Here we mock the update query.
-	test_helpers.MockUpdateItemQuery(mock, &testItem)
+	test_helpers.MockUpdateItemQuery(mock, expectedItem)
 	handler := handlers.PutItemHandler()
 
-	body, err := createItemInputJSONRequestBody(testItemInput)
+	body, err := createItemJSONRequestBody(itemInput)
 	require.NoError(t, err)
 
 	req, err := http.NewRequest("PUT", "/items", body)
@@ -136,22 +150,13 @@ func TestPutItemHandler(t *testing.T) {
 	handler.ServeHTTP(rr, req)
 
 	require.Equal(t, http.StatusOK, rr.Code)
-	// Expect alcohol to remain true and custom to be false.
-	expectedBody := `[{"alcohol":true, "category_id":1, "custom":true, "id":18, "menu_id":99, "name_eng":"TestPutItem", "name_oth":"TestPutItemOther", "price":12.5, "special":false, "variant":"", "variant_default":false, "variant_price_charge":0}]`
+	jsonData, err := json.Marshal([]*models.Item{&expectedItem})
+	require.NoError(t, err)
+	expectedBody := string(jsonData)
 	require.JSONEq(t, expectedBody, rr.Body.String())
-
 }
 
 func createItemJSONRequestBody(item *models.Item) (*bytes.Buffer, error) {
-	jsonData, err := json.Marshal(item)
-	if err != nil {
-		return nil, err
-	}
-	body := bytes.NewBuffer(jsonData)
-	return body, nil
-}
-
-func createItemInputJSONRequestBody(item *models.ItemInput) (*bytes.Buffer, error) {
 	jsonData, err := json.Marshal(item)
 	if err != nil {
 		return nil, err
