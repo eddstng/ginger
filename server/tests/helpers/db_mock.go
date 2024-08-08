@@ -15,33 +15,33 @@ func SetupPgxMock() (pgxmock.PgxConnIface, error) {
 	return mock, nil
 }
 
-// The reason for using pointers in mockItems is to accurately mimic the behavior of the pgx library,
-// which returns data as pointers in pgx.Rows. We then need to use pgx.Scan to populate the struct fields with these values.
-var mockItems = [][]interface{}{
-	{models.PtrInt(1), models.PtrInt(1), models.PtrInt(1), models.PtrFloat64(5.99), models.PtrString("Spring Rolls"), models.PtrString("春卷"), models.PtrBool(false), models.PtrBool(false), models.PtrBool(false), models.PtrString(""), models.PtrBool(false), models.PtrFloat64(0)},                // Appetizers
-	{models.PtrInt(2), models.PtrInt(2), models.PtrInt(2), models.PtrFloat64(4.99), models.PtrString("Hot and Sour Soup"), models.PtrString("酸辣汤"), models.PtrBool(false), models.PtrBool(false), models.PtrBool(false), models.PtrString("Small"), models.PtrBool(true), models.PtrFloat64(0)},      // Soups
-	{models.PtrInt(3), models.PtrInt(2), models.PtrInt(2), models.PtrFloat64(4.99), models.PtrString("Hot and Sour Soup"), models.PtrString("酸辣汤"), models.PtrBool(false), models.PtrBool(false), models.PtrBool(false), models.PtrString("Large"), models.PtrBool(false), models.PtrFloat64(4)},     // Soups
-	{models.PtrInt(4), models.PtrInt(3), models.PtrInt(3), models.PtrFloat64(6.99), models.PtrString("Chicken Egg Foo Yung"), models.PtrString("雞芙蓉蛋"), models.PtrBool(false), models.PtrBool(false), models.PtrBool(false), models.PtrString(""), models.PtrBool(false), models.PtrFloat64(0)},      // Egg Foo Yung
-	{models.PtrInt(5), models.PtrInt(4), models.PtrInt(4), models.PtrFloat64(7.99), models.PtrString("Stir-fried Bok Choy"), models.PtrString("炒青菜"), models.PtrBool(false), models.PtrBool(false), models.PtrBool(false), models.PtrString(""), models.PtrBool(false), models.PtrFloat64(0)},        // Vegetables
-	{models.PtrInt(6), models.PtrInt(5), models.PtrInt(5), models.PtrFloat64(12.99), models.PtrString("Salt and Pepper Shrimp"), models.PtrString("椒鹽蝦"), models.PtrBool(false), models.PtrBool(false), models.PtrBool(false), models.PtrString(""), models.PtrBool(false), models.PtrFloat64(0)},    // Seafood
-	{models.PtrInt(7), models.PtrInt(6), models.PtrInt(6), models.PtrFloat64(13.99), models.PtrString("Stir-fried Scallops"), models.PtrString("炒帶子"), models.PtrBool(false), models.PtrBool(false), models.PtrBool(false), models.PtrString(""), models.PtrBool(false), models.PtrFloat64(0)},       // Oysters/Scallops
-	{models.PtrInt(8), models.PtrInt(7), models.PtrInt(7), models.PtrFloat64(14.99), models.PtrString("Beef Hot Pot"), models.PtrString("牛肉煲"), models.PtrBool(false), models.PtrBool(false), models.PtrBool(false), models.PtrString(""), models.PtrBool(false), models.PtrFloat64(0)},              // Hot Pot
-	{models.PtrInt(9), models.PtrInt(8), models.PtrInt(8), models.PtrFloat64(9.99), models.PtrString("Sweet and Sour Pork"), models.PtrString("糖醋排骨"), models.PtrBool(false), models.PtrBool(false), models.PtrBool(false), models.PtrString(""), models.PtrBool(false), models.PtrFloat64(0)},       // Pork
-	{models.PtrInt(10), models.PtrInt(9), models.PtrInt(9), models.PtrFloat64(10.99), models.PtrString("Beef with Broccoli"), models.PtrString("西蘭花牛肉"), models.PtrBool(false), models.PtrBool(false), models.PtrBool(false), models.PtrString(""), models.PtrBool(false), models.PtrFloat64(0)},     // Beef
-	{models.PtrInt(11), models.PtrInt(10), models.PtrInt(10), models.PtrFloat64(8.99), models.PtrString("Kung Pao Chicken"), models.PtrString("宫保鸡丁"), models.PtrBool(false), models.PtrBool(false), models.PtrBool(false), models.PtrString(""), models.PtrBool(false), models.PtrFloat64(0)},       // Chicken
-	{models.PtrInt(12), models.PtrInt(11), models.PtrInt(11), models.PtrFloat64(7.99), models.PtrString("BBQ Pork Over Rice"), models.PtrString("叉燒飯"), models.PtrBool(false), models.PtrBool(false), models.PtrBool(false), models.PtrString(""), models.PtrBool(false), models.PtrFloat64(0)},      // Over Rice
-	{models.PtrInt(13), models.PtrInt(12), models.PtrInt(12), models.PtrFloat64(8.99), models.PtrString("Yangzhou Fried Rice"), models.PtrString("扬州炒饭"), models.PtrBool(false), models.PtrBool(false), models.PtrBool(false), models.PtrString(""), models.PtrBool(false), models.PtrFloat64(0)},    // Fried Rice
-	{models.PtrInt(14), models.PtrInt(13), models.PtrInt(13), models.PtrFloat64(9.99), models.PtrString("Chicken Chow Mein"), models.PtrString("雞肉炒麵"), models.PtrBool(false), models.PtrBool(false), models.PtrBool(false), models.PtrString(""), models.PtrBool(false), models.PtrFloat64(0)},      // Chow Mein
-	{models.PtrInt(15), models.PtrInt(14), models.PtrInt(14), models.PtrFloat64(6.99), models.PtrString("Beef Noodle Soup"), models.PtrString("牛肉湯麵"), models.PtrBool(false), models.PtrBool(false), models.PtrBool(false), models.PtrString(""), models.PtrBool(false), models.PtrFloat64(0)},       // Noodle Soup
-	{models.PtrInt(16), models.PtrInt(15), models.PtrInt(15), models.PtrFloat64(5.99), models.PtrString("Pork Congee"), models.PtrString("豬肉粥"), models.PtrBool(false), models.PtrBool(false), models.PtrBool(false), models.PtrString(""), models.PtrBool(false), models.PtrFloat64(0)},             // Congee
-	{models.PtrInt(17), models.PtrInt(16), models.PtrInt(16), models.PtrFloat64(15.99), models.PtrString("General Tso's Chicken"), models.PtrString("左宗棠雞"), models.PtrBool(false), models.PtrBool(false), models.PtrBool(false), models.PtrString(""), models.PtrBool(false), models.PtrFloat64(0)}, // Specials
-	{models.PtrInt(18), models.PtrInt(17), models.PtrInt(17), models.PtrFloat64(2.99), models.PtrString("Local Beer"), models.PtrString("本地啤酒"), models.PtrBool(false), models.PtrBool(true), models.PtrBool(false), models.PtrString(""), models.PtrBool(false), models.PtrFloat64(0)},              // Drinks
+var mockItems = []models.Item{
+	{ID: models.PtrInt(1), MenuID: models.PtrInt(1), CategoryID: models.PtrInt(1), Price: models.PtrFloat64(5.99), NameEng: models.PtrString("Spring Rolls"), NameOth: models.PtrString("春卷"), Special: models.PtrBool(false), Alcohol: models.PtrBool(false), Custom: models.PtrBool(false), Variant: models.PtrString(""), VariantDefault: models.PtrBool(false), VariantPriceCharge: models.PtrFloat64(0)},
+	{ID: models.PtrInt(2), MenuID: models.PtrInt(2), CategoryID: models.PtrInt(2), Price: models.PtrFloat64(4.99), NameEng: models.PtrString("Hot and Sour Soup"), NameOth: models.PtrString("酸辣汤"), Special: models.PtrBool(false), Alcohol: models.PtrBool(false), Custom: models.PtrBool(false), Variant: models.PtrString("Small"), VariantDefault: models.PtrBool(true), VariantPriceCharge: models.PtrFloat64(0)},
+	{ID: models.PtrInt(3), MenuID: models.PtrInt(2), CategoryID: models.PtrInt(2), Price: models.PtrFloat64(4.99), NameEng: models.PtrString("Hot and Sour Soup"), NameOth: models.PtrString("酸辣汤"), Special: models.PtrBool(false), Alcohol: models.PtrBool(false), Custom: models.PtrBool(false), Variant: models.PtrString("Large"), VariantDefault: models.PtrBool(false), VariantPriceCharge: models.PtrFloat64(4)},
+	{ID: models.PtrInt(4), MenuID: models.PtrInt(3), CategoryID: models.PtrInt(3), Price: models.PtrFloat64(6.99), NameEng: models.PtrString("Chicken Egg Foo Yung"), NameOth: models.PtrString("雞芙蓉蛋"), Special: models.PtrBool(false), Alcohol: models.PtrBool(false), Custom: models.PtrBool(false), Variant: models.PtrString(""), VariantDefault: models.PtrBool(false), VariantPriceCharge: models.PtrFloat64(0)},
+	{ID: models.PtrInt(5), MenuID: models.PtrInt(4), CategoryID: models.PtrInt(4), Price: models.PtrFloat64(7.99), NameEng: models.PtrString("Stir-fried Bok Choy"), NameOth: models.PtrString("炒青菜"), Special: models.PtrBool(false), Alcohol: models.PtrBool(false), Custom: models.PtrBool(false), Variant: models.PtrString(""), VariantDefault: models.PtrBool(false), VariantPriceCharge: models.PtrFloat64(0)},
+	{ID: models.PtrInt(6), MenuID: models.PtrInt(5), CategoryID: models.PtrInt(5), Price: models.PtrFloat64(12.99), NameEng: models.PtrString("Salt and Pepper Shrimp"), NameOth: models.PtrString("椒鹽蝦"), Special: models.PtrBool(false), Alcohol: models.PtrBool(false), Custom: models.PtrBool(false), Variant: models.PtrString(""), VariantDefault: models.PtrBool(false), VariantPriceCharge: models.PtrFloat64(0)},
+	{ID: models.PtrInt(7), MenuID: models.PtrInt(6), CategoryID: models.PtrInt(6), Price: models.PtrFloat64(13.99), NameEng: models.PtrString("Stir-fried Scallops"), NameOth: models.PtrString("炒帶子"), Special: models.PtrBool(false), Alcohol: models.PtrBool(false), Custom: models.PtrBool(false), Variant: models.PtrString(""), VariantDefault: models.PtrBool(false), VariantPriceCharge: models.PtrFloat64(0)},
+	{ID: models.PtrInt(8), MenuID: models.PtrInt(7), CategoryID: models.PtrInt(7), Price: models.PtrFloat64(14.99), NameEng: models.PtrString("Beef Hot Pot"), NameOth: models.PtrString("牛肉煲"), Special: models.PtrBool(false), Alcohol: models.PtrBool(false), Custom: models.PtrBool(false), Variant: models.PtrString(""), VariantDefault: models.PtrBool(false), VariantPriceCharge: models.PtrFloat64(0)},
+	{ID: models.PtrInt(9), MenuID: models.PtrInt(8), CategoryID: models.PtrInt(8), Price: models.PtrFloat64(9.99), NameEng: models.PtrString("Sweet and Sour Pork"), NameOth: models.PtrString("糖醋排骨"), Special: models.PtrBool(false), Alcohol: models.PtrBool(false), Custom: models.PtrBool(false), Variant: models.PtrString(""), VariantDefault: models.PtrBool(false), VariantPriceCharge: models.PtrFloat64(0)},
+	{ID: models.PtrInt(10), MenuID: models.PtrInt(9), CategoryID: models.PtrInt(9), Price: models.PtrFloat64(10.99), NameEng: models.PtrString("Beef with Broccoli"), NameOth: models.PtrString("西蘭花牛肉"), Special: models.PtrBool(false), Alcohol: models.PtrBool(false), Custom: models.PtrBool(false), Variant: models.PtrString(""), VariantDefault: models.PtrBool(false), VariantPriceCharge: models.PtrFloat64(0)},
+	{ID: models.PtrInt(11), MenuID: models.PtrInt(10), CategoryID: models.PtrInt(10), Price: models.PtrFloat64(8.99), NameEng: models.PtrString("Kung Pao Chicken"), NameOth: models.PtrString("宫保鸡丁"), Special: models.PtrBool(false), Alcohol: models.PtrBool(false), Custom: models.PtrBool(false), Variant: models.PtrString(""), VariantDefault: models.PtrBool(false), VariantPriceCharge: models.PtrFloat64(0)},
+	{ID: models.PtrInt(12), MenuID: models.PtrInt(11), CategoryID: models.PtrInt(11), Price: models.PtrFloat64(7.99), NameEng: models.PtrString("BBQ Pork Over Rice"), NameOth: models.PtrString("叉燒飯"), Special: models.PtrBool(false), Alcohol: models.PtrBool(false), Custom: models.PtrBool(false), Variant: models.PtrString(""), VariantDefault: models.PtrBool(false), VariantPriceCharge: models.PtrFloat64(0)},
+	{ID: models.PtrInt(13), MenuID: models.PtrInt(12), CategoryID: models.PtrInt(12), Price: models.PtrFloat64(8.99), NameEng: models.PtrString("Yangzhou Fried Rice"), NameOth: models.PtrString("扬州炒饭"), Special: models.PtrBool(false), Alcohol: models.PtrBool(false), Custom: models.PtrBool(false), Variant: models.PtrString(""), VariantDefault: models.PtrBool(false), VariantPriceCharge: models.PtrFloat64(0)},
+	{ID: models.PtrInt(14), MenuID: models.PtrInt(13), CategoryID: models.PtrInt(13), Price: models.PtrFloat64(9.99), NameEng: models.PtrString("Chicken Chow Mein"), NameOth: models.PtrString("雞肉炒麵"), Special: models.PtrBool(false), Alcohol: models.PtrBool(false), Custom: models.PtrBool(false), Variant: models.PtrString(""), VariantDefault: models.PtrBool(false), VariantPriceCharge: models.PtrFloat64(0)},
+	{ID: models.PtrInt(15), MenuID: models.PtrInt(14), CategoryID: models.PtrInt(14), Price: models.PtrFloat64(6.99), NameEng: models.PtrString("Beef Noodle Soup"), NameOth: models.PtrString("牛肉湯麵"), Special: models.PtrBool(false), Alcohol: models.PtrBool(false), Custom: models.PtrBool(false), Variant: models.PtrString(""), VariantDefault: models.PtrBool(false), VariantPriceCharge: models.PtrFloat64(0)},
+	{ID: models.PtrInt(16), MenuID: models.PtrInt(15), CategoryID: models.PtrInt(15), Price: models.PtrFloat64(5.99), NameEng: models.PtrString("Pork Congee"), NameOth: models.PtrString("豬肉粥"), Special: models.PtrBool(false), Alcohol: models.PtrBool(false), Custom: models.PtrBool(false), Variant: models.PtrString(""), VariantDefault: models.PtrBool(false), VariantPriceCharge: models.PtrFloat64(0)},
+	{ID: models.PtrInt(17), MenuID: models.PtrInt(16), CategoryID: models.PtrInt(16), Price: models.PtrFloat64(15.99), NameEng: models.PtrString("General Tso's Chicken"), NameOth: models.PtrString("左宗棠雞"), Special: models.PtrBool(false), Alcohol: models.PtrBool(false), Custom: models.PtrBool(false), Variant: models.PtrString(""), VariantDefault: models.PtrBool(false), VariantPriceCharge: models.PtrFloat64(0)},
+	{ID: models.PtrInt(18), MenuID: models.PtrInt(17), CategoryID: models.PtrInt(17), Price: models.PtrFloat64(2.99), NameEng: models.PtrString("Local Beer"), NameOth: models.PtrString("本地啤酒"), Special: models.PtrBool(false), Alcohol: models.PtrBool(true), Custom: models.PtrBool(false), Variant: models.PtrString(""), VariantDefault: models.PtrBool(false), VariantPriceCharge: models.PtrFloat64(0)},
 }
 
 func MockGetItemQuery(mock pgxmock.PgxConnIface, id int) {
 	rows := mock.NewRows([]string{"id", "menu_id", "category_id", "price", "name_eng", "name_oth", "special", "alcohol", "custom", "variant", "variant_default", "variant_price_charge"})
 	if id > 0 && id <= len(mockItems) {
-		rows.AddRow(mockItems[id-1]...)
+		item := mockItems[id-1]
+		rows.AddRow(item.ID, item.MenuID, item.CategoryID, item.Price, item.NameEng, item.NameOth, item.Special, item.Alcohol, item.Custom, item.Variant, item.VariantDefault, item.VariantPriceCharge)
+
 	} else {
 		fmt.Println("MockGetItemQuery: Invalid id", id, "for mockItems. There are only", len(mockItems), "items.")
 	}
@@ -53,7 +53,7 @@ func MockGetItemsQuery(mock pgxmock.PgxConnIface) {
 	rows := mock.NewRows([]string{"id", "menu_id", "category_id", "price", "name_eng", "name_oth", "special", "alcohol", "custom", "variant", "variant_default", "variant_price_charge"})
 
 	for _, item := range mockItems {
-		rows.AddRow(item...)
+		rows.AddRow(item.ID, item.MenuID, item.CategoryID, item.Price, item.NameEng, item.NameOth, item.Special, item.Alcohol, item.Custom, item.Variant, item.VariantDefault, item.VariantPriceCharge)
 	}
 	mock.ExpectQuery("SELECT id, menu_id, category_id, price, name_eng, name_oth, special, alcohol, custom, variant, variant_default, variant_price_charge FROM items ORDER BY id ASC").
 		WillReturnRows(rows)
@@ -71,4 +71,53 @@ func MockUpdateItemQuery(mock pgxmock.PgxConnIface, item models.Item) {
 		WithArgs(*item.MenuID, *item.CategoryID, *item.Price, *item.NameEng, *item.NameOth, *item.Special, *item.Alcohol, *item.Custom, *item.Variant, *item.VariantDefault, *item.VariantPriceCharge, *item.ID).
 		WillReturnRows(mock.NewRows([]string{"id", "menu_id", "category_id", "price", "name_eng", "name_oth", "special", "alcohol", "custom", "variant", "variant_default", "variant_price_charge"}).
 			AddRow(item.ID, item.MenuID, item.CategoryID, item.Price, item.NameEng, item.NameOth, item.Special, item.Alcohol, item.Custom, item.Variant, item.VariantDefault, item.VariantPriceCharge))
+}
+
+var mockCustomers = []models.Customer{
+	{
+		ID:           models.PtrInt(1),
+		Name:         models.PtrString("John Doe"),
+		Phone:        models.PtrString("604-123-1234"),
+		UnitNumber:   nil,
+		StreetNumber: models.PtrString("5555"),
+		StreetName:   models.PtrString("Powel St"),
+		BuzzerNumber: nil,
+		Note:         nil,
+	},
+	{
+		ID:           models.PtrInt(2),
+		Name:         models.PtrString("Christine StClaire"),
+		Phone:        models.PtrString("123-456-7890"),
+		UnitNumber:   models.PtrString("BSM"),
+		StreetNumber: models.PtrString("123"),
+		StreetName:   models.PtrString("Maple St"),
+		BuzzerNumber: models.PtrString("A12"),
+		Note:         models.PtrString("good tips"),
+	},
+	{
+		ID:           models.PtrInt(3),
+		Name:         models.PtrString("David Hogan"),
+		Phone:        models.PtrString("778-123-1234"),
+		UnitNumber:   nil,
+		StreetNumber: models.PtrString("5555"),
+		StreetName:   models.PtrString("Powel St"),
+		BuzzerNumber: nil,
+		Note:         nil,
+	},
+}
+
+func MockGetCustomersQuery(mock pgxmock.PgxConnIface) {
+	rows := mock.NewRows([]string{"id", "name", "phone", "unit_number", "street_number", "street_name", "buzzer_number", "note"})
+
+	for _, customer := range mockCustomers {
+		rows.AddRow(customer.ID, customer.Name, customer.Phone, customer.UnitNumber, customer.StreetNumber, customer.StreetName, customer.BuzzerNumber, customer.Note)
+	}
+	mock.ExpectQuery("SELECT id, name, phone, unit_number, street_number, street_name, buzzer_number, note FROM customers ORDER BY id ASC").
+		WillReturnRows(rows)
+}
+
+func MockInsertCustomerQuery(mock pgxmock.PgxConnIface, customer models.Customer) {
+	mock.ExpectQuery("INSERT INTO customers \\(name, phone, unit_number, street_number, street_name, buzzer_number, note\\) VALUES \\(\\$1, \\$2, \\$3, \\$4, \\$5, \\$6, \\$7\\) RETURNING id, name, phone, unit_number, street_number, street_name, buzzer_number, note").
+		WithArgs(*customer.Name, *customer.Phone, *customer.UnitNumber, *customer.StreetNumber, *customer.StreetName, *customer.BuzzerNumber, *customer.Note).
+		WillReturnRows(mock.NewRows([]string{"id", "name", "phone", "unit_number", "street_number", "street_name", "buzzer_number", "note"}).AddRow(models.PtrInt(19), customer.Name, customer.Phone, customer.UnitNumber, customer.StreetNumber, customer.StreetName, customer.BuzzerNumber, customer.Note))
 }

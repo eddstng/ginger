@@ -1,7 +1,7 @@
 CREATE TABLE customers (
     id SERIAL NOT NULL PRIMARY KEY,
     name VARCHAR(30),
-    phone VARCHAR(15) UNIQUE,
+    phone VARCHAR(15),
     unit_number VARCHAR(15), -- expecting values like bsm or upstairs
     street_number VARCHAR(15),
     street_name VARCHAR(30),
@@ -16,5 +16,4 @@ INSERT INTO customers
 (name,                 phone,           unit_number,  street_number, street_name,   buzzer_number,  note       ) VALUES 
 ('John Doe',           '604-123-1234',  NULL,         '5555',        'Powel St',    NULL,           NULL       ),
 ('Christine StClaire', '123-456-7890',  'BSM',        '123',         'Maple St',    'A12',          'good tips'),
-('David Hogan',        '778-123-1234',  NULL,         '5555',        'Powel St',    NULL,           NULL       )
-ON CONFLICT (phone) DO NOTHING;
+('David Hogan',        '778-123-1234',  NULL,         '6697',        'Powel St',    NULL,           NULL       );
