@@ -1,14 +1,14 @@
 package models
 
 type Customer struct {
-	ID           *int    `json:"id"`
-	Name         *string `json:"name"`
-	Phone        *string `json:"phone"`
-	UnitNumber   *string `json:"unit_number"`
-	StreetNumber *string `json:"street_number"`
-	StreetName   *string `json:"street_name"`
-	BuzzerNumber *string `json:"buzzer_number"`
-	Note         *string `json:"note"`
+	ID           *int    `json:"id,omitempty"`
+	Name         *string `json:"name,omitempty"`
+	Phone        *string `json:"phone,omitempty"`
+	UnitNumber   *string `json:"unit_number,omitempty"`
+	StreetNumber *string `json:"street_number,omitempty"`
+	StreetName   *string `json:"street_name,omitempty"`
+	BuzzerNumber *string `json:"buzzer_number,omitempty"`
+	Note         *string `json:"note,omitempty"`
 }
 
 func NewDefaultCustomer() *Customer {

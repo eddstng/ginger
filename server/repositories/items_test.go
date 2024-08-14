@@ -75,6 +75,7 @@ func TestQueryAllItemsWithMockedDB(t *testing.T) {
 
 func TestInsertItemWithMockedDB(t *testing.T) {
 	var testItem = models.NewDefaultItem()
+	testItem.ID = models.PtrInt(19)
 	testItem.MenuID = models.PtrInt(99)
 	mock, err := test_helpers.SetupPgxMock()
 	require.NoError(t, err)

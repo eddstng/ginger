@@ -63,7 +63,7 @@ func MockInsertItemQuery(mock pgxmock.PgxConnIface, item models.Item) {
 	mock.ExpectQuery("INSERT INTO items \\(menu_id, category_id, price, name_eng, name_oth, special, alcohol, custom, variant, variant_default, variant_price_charge\\) VALUES \\(\\$1, \\$2, \\$3, \\$4, \\$5, \\$6, \\$7, \\$8, \\$9, \\$10, \\$11\\) RETURNING id, menu_id, category_id, price, name_eng, name_oth, special, alcohol, custom, variant, variant_default, variant_price_charge").
 		WithArgs(*item.MenuID, *item.CategoryID, *item.Price, *item.NameEng, *item.NameOth, *item.Special, *item.Alcohol, *item.Custom, *item.Variant, *item.VariantDefault, *item.VariantPriceCharge).
 		WillReturnRows(mock.NewRows([]string{"id", "menu_id", "category_id", "price", "name_eng", "name_oth", "special", "alcohol", "custom", "variant", "variant_default", "variant_price_charge"}).
-			AddRow(models.PtrInt(19), item.MenuID, item.CategoryID, item.Price, item.NameEng, item.NameOth, item.Special, item.Alcohol, item.Custom, item.Variant, item.VariantDefault, item.VariantPriceCharge))
+			AddRow(item.ID, item.MenuID, item.CategoryID, item.Price, item.NameEng, item.NameOth, item.Special, item.Alcohol, item.Custom, item.Variant, item.VariantDefault, item.VariantPriceCharge))
 }
 
 func MockUpdateItemQuery(mock pgxmock.PgxConnIface, item models.Item) {
@@ -78,17 +78,17 @@ var mockCustomers = []models.Customer{
 		ID:           models.PtrInt(1),
 		Name:         models.PtrString("John Doe"),
 		Phone:        models.PtrString("604-123-1234"),
-		UnitNumber:   nil,
+		UnitNumber:   models.PtrString(""),
 		StreetNumber: models.PtrString("5555"),
 		StreetName:   models.PtrString("Powel St"),
-		BuzzerNumber: nil,
-		Note:         nil,
+		BuzzerNumber: models.PtrString(""),
+		Note:         models.PtrString(""),
 	},
 	{
 		ID:           models.PtrInt(2),
 		Name:         models.PtrString("Christine StClaire"),
 		Phone:        models.PtrString("123-456-7890"),
-		UnitNumber:   models.PtrString("BSM"),
+		UnitNumber:   models.PtrString("A12"),
 		StreetNumber: models.PtrString("123"),
 		StreetName:   models.PtrString("Maple St"),
 		BuzzerNumber: models.PtrString("A12"),
@@ -98,17 +98,27 @@ var mockCustomers = []models.Customer{
 		ID:           models.PtrInt(3),
 		Name:         models.PtrString("David Hogan"),
 		Phone:        models.PtrString("778-123-1234"),
-		UnitNumber:   nil,
+		UnitNumber:   models.PtrString("BSM"),
 		StreetNumber: models.PtrString("5555"),
 		StreetName:   models.PtrString("Powel St"),
-		BuzzerNumber: nil,
-		Note:         nil,
+		BuzzerNumber: models.PtrString(""),
+		Note:         models.PtrString(""),
 	},
+}
+
+func MockGetCustomerQuery(mock pgxmock.PgxConnIface, id int) {
+	rows := mock.NewRows([]string{"id", "name", "phone", "unit_number", "street_number", "street_name", "buzzer_number", "note"})
+	if id > 0 && id <= len(mockCustomers) {
+		customer := mockCustomers[id-1]
+		rows.AddRow(customer.ID, customer.Name, customer.Phone, customer.UnitNumber, customer.StreetNumber, customer.StreetName, customer.BuzzerNumber, customer.Note)
+	} else {
+		fmt.Println("MockGetCustomerQuery: Invalid id", id, "for mockCustomers. There are only", len(mockCustomers), "customers.")
+	}
+	mock.ExpectQuery("SELECT id, name, phone, unit_number, street_number, street_name, buzzer_number, note FROM customers WHERE id = \\$1").WithArgs(id).WillReturnRows(rows)
 }
 
 func MockGetCustomersQuery(mock pgxmock.PgxConnIface) {
 	rows := mock.NewRows([]string{"id", "name", "phone", "unit_number", "street_number", "street_name", "buzzer_number", "note"})
-
 	for _, customer := range mockCustomers {
 		rows.AddRow(customer.ID, customer.Name, customer.Phone, customer.UnitNumber, customer.StreetNumber, customer.StreetName, customer.BuzzerNumber, customer.Note)
 	}
@@ -119,5 +129,13 @@ func MockGetCustomersQuery(mock pgxmock.PgxConnIface) {
 func MockInsertCustomerQuery(mock pgxmock.PgxConnIface, customer models.Customer) {
 	mock.ExpectQuery("INSERT INTO customers \\(name, phone, unit_number, street_number, street_name, buzzer_number, note\\) VALUES \\(\\$1, \\$2, \\$3, \\$4, \\$5, \\$6, \\$7\\) RETURNING id, name, phone, unit_number, street_number, street_name, buzzer_number, note").
 		WithArgs(*customer.Name, *customer.Phone, *customer.UnitNumber, *customer.StreetNumber, *customer.StreetName, *customer.BuzzerNumber, *customer.Note).
-		WillReturnRows(mock.NewRows([]string{"id", "name", "phone", "unit_number", "street_number", "street_name", "buzzer_number", "note"}).AddRow(models.PtrInt(19), customer.Name, customer.Phone, customer.UnitNumber, customer.StreetNumber, customer.StreetName, customer.BuzzerNumber, customer.Note))
+		WillReturnRows(mock.NewRows([]string{"id", "name", "phone", "unit_number", "street_number", "street_name", "buzzer_number", "note"}).
+			AddRow(customer.ID, customer.Name, customer.Phone, customer.UnitNumber, customer.StreetNumber, customer.StreetName, customer.BuzzerNumber, customer.Note))
+}
+
+func MockUpdateCustomerQuery(mock pgxmock.PgxConnIface, customer models.Customer) {
+	mock.ExpectQuery("UPDATE customers SET name = \\$1, phone = \\$2, unit_number = \\$3, street_number = \\$4, street_name = \\$5, buzzer_number = \\$6, note = \\$7 WHERE id = \\$8 RETURNING id, name, phone, unit_number, street_number, street_name, buzzer_number, note").
+		WithArgs(*customer.Name, *customer.Phone, *customer.UnitNumber, *customer.StreetNumber, *customer.StreetName, *customer.BuzzerNumber, *customer.Note, *customer.ID).
+		WillReturnRows(mock.NewRows([]string{"id", "name", "phone", "unit_number", "street_number", "street_name", "buzzer_number", "note"}).
+			AddRow(customer.ID, customer.Name, customer.Phone, customer.UnitNumber, customer.StreetNumber, customer.StreetName, customer.BuzzerNumber, customer.Note))
 }

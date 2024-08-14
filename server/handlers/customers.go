@@ -45,3 +45,23 @@ func PostCustomerHandler() http.HandlerFunc {
 		json.NewEncoder(w).Encode(customers)
 	}
 }
+
+func PutCustomerHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var customerInput models.Customer
+		err := json.NewDecoder(r.Body).Decode(&customerInput)
+		if err != nil {
+			fmt.Printf("Error decoding JSON in PutCustomerHandler: %v\n", err)
+			http.Error(w, fmt.Sprintf("Error decoding JSON: %v", err), http.StatusBadRequest)
+			return
+		}
+		customers, err := repositories.UpdateCustomer(&customerInput)
+		if err != nil {
+			fmt.Printf("Error updating customer in PutCustomerHandler: %v\n", err)
+			http.Error(w, fmt.Sprintf("Error putting customer: %v", err), http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(customers)
+	}
+}

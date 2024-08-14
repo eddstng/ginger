@@ -164,3 +164,99 @@ func createItemJSONRequestBody(item *models.Item) (*bytes.Buffer, error) {
 	body := bytes.NewBuffer(jsonData)
 	return body, nil
 }
+
+func createCustomerJSONRequestBody(customer *models.Customer) (*bytes.Buffer, error) {
+	jsonData, err := json.Marshal(customer)
+	if err != nil {
+		return nil, err
+	}
+	body := bytes.NewBuffer(jsonData)
+	return body, nil
+}
+
+func TestGetCustomersHandler(t *testing.T) {
+	test_helpers.MockGetCustomersQuery(mock)
+	handler := handlers.GetCustomersHandler()
+
+	req, err := http.NewRequest("GET", "/customers", nil)
+	require.NoError(t, err)
+
+	rr := httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
+
+	require.Equal(t, http.StatusOK, rr.Code)
+
+	expectedBody := `[{"buzzer_number":"","id":1,"name":"John Doe","note":"","phone":"604-123-1234","street_name":"Powel St","street_number":"5555","unit_number":""},
+	{"buzzer_number":"A12","id":2,"name":"Christine StClaire","note":"good tips","phone":"123-456-7890","street_name":"Maple St","street_number":"123","unit_number":"A12"},
+	{"buzzer_number":"","id":3,"name":"David Hogan","note":"","phone":"778-123-1234","street_name":"Powel St","street_number":"5555","unit_number":"BSM"}]`
+	require.JSONEq(t, expectedBody, rr.Body.String())
+}
+
+func TestPostCustomerHandler(t *testing.T) {
+	var mockCustomer = models.NewDefaultCustomer()
+	*mockCustomer.ID = 4
+	*mockCustomer.Name = "TestPostCustomer"
+	*mockCustomer.Phone = "604-000-3838"
+
+	test_helpers.MockInsertCustomerQuery(mock, *mockCustomer)
+	handler := handlers.PostCustomerHandler()
+
+	var testCustomer = models.NewDefaultCustomerWithNil()
+	testCustomer.ID = models.PtrInt(0)
+	testCustomer.Name = models.PtrString("TestPostCustomer")
+	testCustomer.Phone = models.PtrString(("604-000-3838"))
+
+	body, err := createCustomerJSONRequestBody(testCustomer)
+	require.NoError(t, err)
+
+	req, err := http.NewRequest("POST", "/customers", body)
+	require.NoError(t, err)
+
+	rr := httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
+
+	require.Equal(t, http.StatusOK, rr.Code)
+
+	jsonData, err := json.Marshal([]*models.Customer{mockCustomer})
+	require.NoError(t, err)
+	expectedBody := string(jsonData)
+	require.JSONEq(t, expectedBody, rr.Body.String())
+}
+
+func TestPutCustomerHandler(t *testing.T) {
+	var customerInput = models.NewDefaultCustomerWithNil()
+	customerInput.ID = models.PtrInt(3)
+	customerInput.Name = models.PtrString("TestPutCustomer")
+	customerInput.Phone = models.PtrString("911")
+	test_helpers.MockGetCustomerQuery(mock, *customerInput.ID)
+
+	expectedCustomer := models.Customer{
+		ID:           models.PtrInt(3),
+		Name:         models.PtrString("TestPutCustomer"),
+		Phone:        models.PtrString("911"),
+		UnitNumber:   models.PtrString("BSM"),
+		StreetNumber: models.PtrString("5555"),
+		StreetName:   models.PtrString("Powel St"),
+		BuzzerNumber: models.PtrString(""),
+		Note:         models.PtrString(""),
+	}
+
+	test_helpers.MockUpdateCustomerQuery(mock, expectedCustomer)
+
+	handler := handlers.PutCustomerHandler()
+
+	body, err := createCustomerJSONRequestBody(customerInput)
+	require.NoError(t, err)
+
+	req, err := http.NewRequest("PUT", "/customers", body)
+	require.NoError(t, err)
+
+	rr := httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
+
+	require.Equal(t, http.StatusOK, rr.Code)
+	jsonData, err := json.Marshal([]*models.Customer{&expectedCustomer})
+	require.NoError(t, err)
+	expectedBody := string(jsonData)
+	require.JSONEq(t, expectedBody, rr.Body.String())
+}
