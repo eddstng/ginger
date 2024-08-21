@@ -1,6 +1,7 @@
 package repositories_test
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"server/db"
@@ -158,4 +159,35 @@ func TestUpdateCustomer(t *testing.T) {
 	require.Equal(t, "1206", *allCustomers[3].StreetNumber)
 	require.Equal(t, "", *allCustomers[3].BuzzerNumber)
 	require.Equal(t, "complains a lot", *allCustomers[3].Note)
+}
+
+func TestQueryAllOrders(t *testing.T) {
+	orders, err := repositories.QueryAllOrders()
+	require.NoError(t, err)
+	require.NotNil(t, orders)
+	require.Len(t, orders, 2)
+
+	require.Equal(t, 7.50, *orders[0].Subtotal)
+	require.Equal(t, 7.87, *orders[0].Total)
+	require.Equal(t, 0.37, *orders[0].GST)
+	require.Equal(t, 0.00, *orders[0].PST)
+	require.Equal(t, 0.00, *orders[0].Discount)
+	require.Equal(t, "IN", *orders[0].Category)
+	require.Nil(t, orders[0].Customizations)
+	require.Equal(t, 1, *orders[0].CustomerID)
+
+	require.Equal(t, 6.00, *orders[1].Subtotal)
+	require.Equal(t, 6.30, *orders[1].Total)
+	require.Equal(t, 0.30, *orders[1].GST)
+	require.Equal(t, 0.00, *orders[1].PST)
+	require.Equal(t, 0.00, *orders[1].Discount)
+	require.Equal(t, "OUT", *orders[1].Category)
+	require.NotNil(t, orders[1].Customizations)
+
+	var expectedCustomizations, actualCustomizations []map[string]interface{}
+	json.Unmarshal([]byte(`[{"name_eng": "add bb sauce", "name_oth": "gaseejup", "price": 1.00}]`), &expectedCustomizations)
+	json.Unmarshal([]byte(*orders[1].Customizations), &actualCustomizations)
+	require.Equal(t, expectedCustomizations, actualCustomizations)
+
+	require.Equal(t, 2, *orders[1].CustomerID)
 }

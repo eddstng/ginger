@@ -260,3 +260,22 @@ func TestPutCustomerHandler(t *testing.T) {
 	expectedBody := string(jsonData)
 	require.JSONEq(t, expectedBody, rr.Body.String())
 }
+
+func TestGetOrdersHandler(t *testing.T) {
+	test_helpers.MockGetOrdersQuery(mock)
+	handler := handlers.GetOrdersHandler()
+
+	req, err := http.NewRequest("GET", "/orders", nil)
+	require.NoError(t, err)
+
+	rr := httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
+
+	require.Equal(t, http.StatusOK, rr.Code)
+
+	expectedBody := `[
+		{"category":"IN", "customer_id":1, "discount":0, "gst":0.37, "id":1, "pst":0, "subtotal":7.5, "total":7.87},
+		{"category":"OUT", "customer_id":2, "customizations":"[{\"name_eng\": \"add bb sauce\", \"name_oth\": \"gaseejup\", \"price\": 1.00}]", "discount":0, "gst":0.3, "id":2, "pst":0, "subtotal":6, "total":6.3}
+    ]`
+	require.JSONEq(t, expectedBody, rr.Body.String())
+}

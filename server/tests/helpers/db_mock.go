@@ -139,3 +139,38 @@ func MockUpdateCustomerQuery(mock pgxmock.PgxConnIface, customer models.Customer
 		WillReturnRows(mock.NewRows([]string{"id", "name", "phone", "unit_number", "street_number", "street_name", "buzzer_number", "note"}).
 			AddRow(customer.ID, customer.Name, customer.Phone, customer.UnitNumber, customer.StreetNumber, customer.StreetName, customer.BuzzerNumber, customer.Note))
 }
+
+var mockOrders = []models.Order{
+	{
+		ID:             models.PtrInt(1),
+		Subtotal:       models.PtrFloat64(7.50),
+		Total:          models.PtrFloat64(7.87),
+		GST:            models.PtrFloat64(0.37),
+		PST:            models.PtrFloat64(0.00),
+		Discount:       models.PtrFloat64(0.00),
+		Category:       models.PtrString("IN"),
+		Customizations: nil,
+		CustomerID:     models.PtrInt(1),
+	},
+	{
+		ID:             models.PtrInt(2),
+		Subtotal:       models.PtrFloat64(6.00),
+		Total:          models.PtrFloat64(6.30),
+		GST:            models.PtrFloat64(0.30),
+		PST:            models.PtrFloat64(0.00),
+		Discount:       models.PtrFloat64(0.00),
+		Category:       models.PtrString("OUT"),
+		Customizations: models.PtrString(`[{"name_eng": "add bb sauce", "name_oth": "gaseejup", "price": 1.00}]`),
+		CustomerID:     models.PtrInt(2),
+	},
+}
+
+func MockGetOrdersQuery(mock pgxmock.PgxConnIface) {
+	rows := mock.NewRows([]string{"id", "subtotal", "total", "gst", "pst", "discount", "timestamp", "category", "void", "paid", "customizations", "customer_id"})
+
+	for _, order := range mockOrders {
+		rows.AddRow(order.ID, order.Subtotal, order.Total, order.GST, order.PST, order.Discount, order.Timestamp, order.Category, order.Void, order.Paid, order.Customizations, order.CustomerID)
+	}
+	mock.ExpectQuery("SELECT id, subtotal, total, gst, pst, discount, timestamp, category, void, paid, customizations, customer_id FROM orders").
+		WillReturnRows(rows)
+}

@@ -21,6 +21,6 @@ func InitializeChiRouter() *chi.Mux {
 	r.Get("/customers", handlers.GetCustomersHandler())
 	r.Post("/customers", handlers.PostCustomerHandler())
 	r.Put("/customers", handlers.PutCustomerHandler())
-
+	r.Get("/orders", handlers.GetOrdersHandler())
 	return r
 }
