@@ -33,8 +33,6 @@ func InsertCustomer(customer *models.Customer) ([]models.Customer, error) {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
 			switch pgErr.Code {
-			case "23503":
-				return nil, fmt.Errorf("failed to insert item: category ID %v does not exist (error code: %s)", customer.Phone, pgErr.Code)
 			default:
 				return nil, fmt.Errorf("failed to insert item: %v (error code: %s)", pgErr.Message, pgErr.Code)
 			}

@@ -174,3 +174,10 @@ func MockGetOrdersQuery(mock pgxmock.PgxConnIface) {
 	mock.ExpectQuery("SELECT id, subtotal, total, gst, pst, discount, timestamp, category, void, paid, customizations, customer_id FROM orders").
 		WillReturnRows(rows)
 }
+
+func MockInsertOrderQuery(mock pgxmock.PgxConnIface, order models.Order) {
+	mock.ExpectQuery("INSERT INTO orders \\(subtotal, total, gst, pst, discount, timestamp, category, void, paid, customizations, customer_id\\) VALUES \\(\\$1, \\$2, \\$3, \\$4, \\$5, \\$6, \\$7, \\$8, \\$9, \\$10, \\$11\\) RETURNING id, subtotal, total, gst, pst, discount, timestamp, category, void, paid, customizations, customer_id").
+		WithArgs(*order.Subtotal, *order.Total, *order.GST, *order.PST, *order.Discount, *order.Timestamp, *order.Category, *order.Void, *order.Paid, *order.Customizations, *order.CustomerID).
+		WillReturnRows(mock.NewRows([]string{"id", "subtotal", "total", "gst", "pst", "discount", "timestamp", "category", "void", "paid", "customizations", "customer_id"}).
+			AddRow(order.ID, order.Subtotal, order.Total, order.GST, order.PST, order.Discount, order.Timestamp, order.Category, order.Void, order.Paid, order.Customizations, order.CustomerID))
+}

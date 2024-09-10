@@ -31,7 +31,7 @@ func PostCustomerHandler() http.HandlerFunc {
 		}
 
 		if *customer.Phone == "" && *customer.Name == "" {
-			fmt.Printf("Name or Phone error: %v\n", err)
+			fmt.Printf("Name or Phone error: %v\n, %v\n", *customer.Name, *customer.Phone)
 			http.Error(w, "Name or Phone are required fields", http.StatusBadRequest)
 			return
 		}

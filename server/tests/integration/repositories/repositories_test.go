@@ -4,10 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"reflect"
 	"server/db"
 	"server/models"
 	"server/repositories"
 	"testing"
+	"time"
 
 	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/require"
@@ -119,8 +121,10 @@ func TestQueryAllCustomers(t *testing.T) {
 
 func TestInsertCustomer(t *testing.T) {
 	var testCustomer = models.NewDefaultCustomer()
-	testCustomer.Name = models.PtrString("TestInsertCustomer")
-	testCustomer.Phone = models.PtrString("604-333-3838")
+	// testCustomer.Name = models.PtrString("TestInsertCustomer")
+	// testCustomer.Phone = models.PtrString("604-333-3838")
+	*testCustomer.Name = "TestInsertCustomer"
+	*testCustomer.Phone = "604-333-3838"
 	items, err := repositories.InsertCustomer(testCustomer)
 	require.NoError(t, err)
 	require.NotNil(t, items)
@@ -190,4 +194,44 @@ func TestQueryAllOrders(t *testing.T) {
 	require.Equal(t, expectedCustomizations, actualCustomizations)
 
 	require.Equal(t, 2, *orders[1].CustomerID)
+}
+
+func TestInsertOrder(t *testing.T) {
+	var testOrder = models.NewDefaultOrder()
+	testOrder.CustomerID = models.PtrInt(1)
+	*testOrder.Subtotal = 7.50
+	*testOrder.Total = 7.87
+	*testOrder.GST = 0.37
+	*testOrder.PST = 0.00
+	*testOrder.Discount = 0.00
+	*testOrder.Timestamp = time.Now()
+	*testOrder.Void = false
+	*testOrder.Paid = true
+	*testOrder.Customizations = ""
+	*testOrder.Customizations = `[{"name_eng": "add bb sauce", "name_oth": "gaseejup", "price": 1.00}]`
+	*testOrder.Category = "IN"
+	testOrder.CustomerID = models.PtrInt(1)
+
+	// the handler handles the nil values and turns it them into default values so we just use the NewDefaultOrder here is ok.
+	orders, err := repositories.InsertOrder(testOrder)
+	require.NoError(t, err)
+	require.NotNil(t, orders)
+	require.Len(t, orders, 1)
+	require.IsType(t, *testOrder.ID, *orders[0].ID)
+	require.Equal(t, *testOrder.Subtotal, *orders[0].Subtotal)
+	require.Equal(t, *testOrder.Total, *orders[0].Total)
+	require.Equal(t, *testOrder.GST, *orders[0].GST)
+	require.Equal(t, *testOrder.PST, *orders[0].PST)
+	require.Equal(t, *testOrder.Discount, *orders[0].Discount)
+	require.Equal(t, "*time.Time", reflect.TypeOf(orders[0].Timestamp).String())
+	require.Equal(t, *testOrder.Void, *orders[0].Void)
+	require.Equal(t, *testOrder.Paid, *orders[0].Paid)
+
+	var expectedCustomizations map[string]interface{}
+	var actualCustomizations map[string]interface{}
+	json.Unmarshal([]byte(*testOrder.Customizations), &expectedCustomizations)
+	json.Unmarshal([]byte(*orders[0].Customizations), &actualCustomizations)
+
+	require.Equal(t, *testOrder.Category, *orders[0].Category)
+	require.Equal(t, *testOrder.CustomerID, *orders[0].CustomerID)
 }

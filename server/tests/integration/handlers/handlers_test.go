@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -174,6 +175,15 @@ func createCustomerJSONRequestBody(customer *models.Customer) (*bytes.Buffer, er
 	return body, nil
 }
 
+func createOrderJSONRequestBody(order *models.Order) (*bytes.Buffer, error) {
+	jsonData, err := json.Marshal(order)
+	if err != nil {
+		return nil, err
+	}
+	body := bytes.NewBuffer(jsonData)
+	return body, nil
+}
+
 func TestGetCustomersHandler(t *testing.T) {
 	test_helpers.MockGetCustomersQuery(mock)
 	handler := handlers.GetCustomersHandler()
@@ -277,5 +287,45 @@ func TestGetOrdersHandler(t *testing.T) {
 		{"category":"IN", "customer_id":1, "discount":0, "gst":0.37, "id":1, "pst":0, "subtotal":7.5, "total":7.87},
 		{"category":"OUT", "customer_id":2, "customizations":"[{\"name_eng\": \"add bb sauce\", \"name_oth\": \"gaseejup\", \"price\": 1.00}]", "discount":0, "gst":0.3, "id":2, "pst":0, "subtotal":6, "total":6.3}
     ]`
+	require.JSONEq(t, expectedBody, rr.Body.String())
+}
+
+func TestInsertOrdersHandler(t *testing.T) {
+	var mockOrder = models.NewDefaultOrder()
+	*mockOrder.ID = 4
+	*mockOrder.CustomerID = 1
+	*mockOrder.Discount = 0
+	*mockOrder.GST = 0.37
+	*mockOrder.PST = 0
+	*mockOrder.Subtotal = 7.5
+	*mockOrder.Total = 7.87
+
+	test_helpers.MockInsertOrderQuery(mock, *mockOrder)
+	handler := handlers.PostOrderHandler()
+
+	var testOrder = models.NewDefaultOrderWithNil()
+	testOrder.Subtotal = models.PtrFloat64(7.5)
+	testOrder.Total = models.PtrFloat64(7.87)
+	testOrder.GST = models.PtrFloat64(0.37)
+	testOrder.PST = models.PtrFloat64(0)
+	testOrder.Discount = models.PtrFloat64(0)
+	testOrder.CustomerID = models.PtrInt(1)
+	testOrder.Category = models.PtrString("IN")
+
+	body, err := createOrderJSONRequestBody(testOrder)
+	require.NoError(t, err)
+
+	req, err := http.NewRequest("POST", "/orders", body)
+	require.NoError(t, err)
+
+	rr := httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
+
+	fmt.Println(rr.Code)
+	require.Equal(t, http.StatusOK, rr.Code)
+
+	jsonData, err := json.Marshal([]*models.Order{mockOrder})
+	require.NoError(t, err)
+	expectedBody := string(jsonData)
 	require.JSONEq(t, expectedBody, rr.Body.String())
 }

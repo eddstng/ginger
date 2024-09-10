@@ -18,6 +18,8 @@ type Order struct {
 }
 
 func NewDefaultOrder() *Order {
+	defaultCustomizations := "[]"
+	defaultCategory := "IN"
 	return &Order{
 		ID:             new(int),
 		Subtotal:       new(float64),
@@ -28,8 +30,9 @@ func NewDefaultOrder() *Order {
 		Timestamp:      new(time.Time),
 		Void:           new(bool),
 		Paid:           new(bool),
-		Customizations: new(string),
-		Category:       new(string),
+		Customizations: &defaultCustomizations,
+		Category:       &defaultCategory,
+		CustomerID:     new(int),
 	}
 }
 
