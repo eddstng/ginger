@@ -39,3 +39,23 @@ func PostOrderHandler() http.HandlerFunc {
 		json.NewEncoder(w).Encode(orders)
 	}
 }
+
+func PutOrderHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var orderInput models.Order
+		err := json.NewDecoder(r.Body).Decode(&orderInput)
+		if err != nil {
+			fmt.Printf("Error decoding JSON in PutOrderHandler: %v\n", err)
+			http.Error(w, fmt.Sprintf("Error decoding JSON: %v", err), http.StatusBadRequest)
+			return
+		}
+		orders, err := repositories.UpdateOrder(&orderInput)
+		if err != nil {
+			fmt.Printf("Error updating order in PutOrderHandler: %v\n", err)
+			http.Error(w, fmt.Sprintf("Error putting order: %v", err), http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(orders)
+	}
+}

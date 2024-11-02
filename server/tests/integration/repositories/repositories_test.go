@@ -152,10 +152,10 @@ func TestUpdateCustomer(t *testing.T) {
 	testCustomerInput.StreetNumber = models.PtrString("1206")
 	testCustomerInput.Note = models.PtrString("complains a lot")
 
-	updatedCustomers, err := repositories.UpdateCustomer(testCustomerInput)
+	updatedCustomer, err := repositories.UpdateCustomer(testCustomerInput)
 	require.NoError(t, err)
-	require.NotNil(t, updatedCustomers)
-	require.Len(t, updatedCustomers, 1)
+	require.NotNil(t, updatedCustomer)
+	require.Len(t, updatedCustomer, 1)
 	allCustomers, _ = repositories.QueryAllCustomers()
 	require.Equal(t, "Rea Listik Name", *allCustomers[3].Name)
 	require.Equal(t, "604-333-3838", *allCustomers[3].Phone)
@@ -234,4 +234,37 @@ func TestInsertOrder(t *testing.T) {
 
 	require.Equal(t, *testOrder.Category, *orders[0].Category)
 	require.Equal(t, *testOrder.CustomerID, *orders[0].CustomerID)
+}
+
+func TestUpdateOrder(t *testing.T) {
+	allOrders, err := repositories.QueryAllOrders()
+	require.NoError(t, err)
+	require.Len(t, allOrders, 3)
+
+	testOrder := allOrders[2]
+	require.Equal(t, 7.50, *testOrder.Subtotal)
+	require.Equal(t, 7.87, *testOrder.Total)
+	require.Equal(t, 0.37, *testOrder.GST)
+	require.Equal(t, 0.00, *testOrder.PST)
+	require.Equal(t, 0.00, *testOrder.Discount)
+	// require.Equal(t, time.Now(), *testOrder.Timestamp)
+	require.WithinDuration(t, time.Now(), *testOrder.Timestamp, time.Second)
+	require.Equal(t, false, *testOrder.Void)
+	require.Equal(t, true, *testOrder.Paid)
+	require.JSONEq(t, `[{"name_eng": "add bb sauce", "name_oth": "gaseejup", "price": 1.00}]`, *testOrder.Customizations)
+	require.Equal(t, "IN", *testOrder.Category)
+	require.Equal(t, 1, *testOrder.CustomerID)
+
+	var testOrderInput = models.NewDefaultOrderWithNil()
+	testOrderInput.ID = allOrders[2].ID
+	testOrderInput.Category = models.PtrString("OUT")
+	testOrderInput.Customizations = models.PtrString(`[{"name_eng": "add ss sauce", "name_oth": "gulojup", "price": 1.00}]`)
+
+	updatedOrder, err := repositories.UpdateOrder(testOrderInput)
+	require.NoError(t, err)
+	require.NotNil(t, updatedOrder)
+	require.Len(t, updatedOrder, 1)
+	allOrders, _ = repositories.QueryAllOrders()
+	require.JSONEq(t, `[{"name_eng": "add ss sauce", "name_oth": "gulojup", "price": 1.00}]`, *allOrders[2].Customizations)
+	require.Equal(t, "OUT", *allOrders[2].Category)
 }
