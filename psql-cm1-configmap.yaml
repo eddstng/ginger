@@ -1,0 +1,57 @@
+apiVersion: v1
+data:
+  00_create_categories_table.sql: "CREATE TABLE categories (\n    id SERIAL NOT NULL PRIMARY KEY, \n    name_eng VARCHAR(100) NOT NULL UNIQUE, \n    name_oth VARCHAR(100) NOT NULL UNIQUE, \n    description TEXT DEFAULT NULL\n);\n\nINSERT INTO categories \n(name_eng,             name_oth) VALUES \n('Custom',            'Custom'),\n('Appetizers',         '頭 盤'),\n('Soups',              '湯 羹 類'),\n('Egg Foo Yung',       '芙 蓉 蛋 類'),\n('Vegetables',         '蔬 菜 豆 腐 類'),\n('Seafood',            '海 鮮 類'),\n('Oysters/Scallops',   '生 蠔 帶 子 類'),\n('Hot Pot',            '煲 仔 類'),\n('Pork',               '豬 肉 類'),\n('Beef',               '牛 肉 類'),\n('Chicken',            '雞 肉 類'),\n('Over Rice',          '碟 飯 類'),\n('Fried Rice',         '炒 飯 類'),\n('Chow Mein',          '炒 粉 麵 類'),\n('Noodle Soup',        '湯 粉 麵 類'),\n('Congee',             '粥 類'),\n('Specials',           'Specials'),\n('Drinks',             'Drinks');"
+  01_create_items_table.sql: "CREATE TABLE items (\n    id SERIAL PRIMARY KEY, \n    menu_id INTEGER DEFAULT 0, -- Multiple items can share the same menu_id. This may happen for items with variations.\n    category_id INTEGER DEFAULT 1 REFERENCES categories(id),\n    price DECIMAL(10, 2) DEFAULT 0,\n    name_eng VARCHAR(100) NOT NULL,\n    name_oth VARCHAR(100) DEFAULT NULL, -- Item name in other language.\n    special BOOLEAN DEFAULT FALSE, -- Automatic discounts will not be applied to items that are special.\n    alcohol BOOLEAN DEFAULT FALSE, -- An alcohol tax (PST) will be applied to items that are alcoholic.\n    custom BOOLEAN DEFAULT FALSE, -- Custom items may be created.\n    variant VARCHAR(100) DEFAULT NULL, -- The variation string if applicable.\n    variant_default BOOLEAN DEFAULT FALSE, -- Indicates whether this variation is the default variation if applicable.\n    variant_price_charge DECIMAL(10,2) DEFAULT 0\n);\n\nINSERT INTO items \n(menu_id, category_id, price, name_eng,                     name_oth,     special,  alcohol,   custom,      variant,     variant_default, variant_price_charge) VALUES \n(1,       2,           5.99,  'Spring Rolls',               '春卷',       false,     false,     false,      '',          false,            0),\n(2,       3,           4.99,  'Hot and Sour Soup',          '酸辣汤',      false,     false,     false,      'Small',     true,            0),\n(3,       3,           4.99,  'Hot and Sour Soup',          '酸辣汤',      false,     false,     false,      'Large',     false,            4),\n(4,       4,           6.99,  'Chicken Egg Foo Yung',       '雞芙蓉蛋',    false,     false,     false,      '',          false,            0),\n(5,       5,           7.99,  'Stir-fried Bok Choy',        '炒青菜',      false,     false,     false,      '',          false,            0),\n(6,       6,           12.99,  'Salt and Pepper Shrimp',    '椒鹽蝦',      false,     false,     false,      '',          false,            0),\n(7,       7,           13.99,  'Stir-fried Scallops',       '炒帶子',      false,     false,     false,      '',          false,            0),\n(8,       8,           14.99,  'Beef Hot Pot',              '牛肉煲',      false,     false,     false,      '',          false,            0),\n(9,       9,           9.99,  'Sweet and Sour Pork',        '糖醋排骨',    false,     false,     false,      '',          false,            0),\n(10,       10,          10.99,  'Beef with Broccoli',        '西蘭花牛肉',  false,     false,     false,      '',           false,            0),\n(11,      11,          8.99,  'Kung Pao Chicken',           '宫保鸡丁',    false,     false,     false,      '',          false,            0),\n(12,      12,          7.99,  'BBQ Pork Over Rice',         '叉燒飯',      false,     false,     false,      '',          false,            0),\n(13,      13,          8.99,  'Yangzhou Fried Rice',        '扬州炒饭',    false,     false,     false,      '',           false,           0),\n(14,      14,          9.99,  'Chicken Chow Mein',          '雞肉炒麵',    false,     false,     false,      '',          false,            0),\n(15,      15,          6.99,  'Beef Noodle Soup',           '牛肉湯麵',    false,     false,     false,      '',           false,            0),\n(16,      16,          5.99,  'Pork Congee',                '豬肉粥',      false,     false,     false,      '',          false,            0),\n(17,      17,          15.99,  'General Tso''s Chicken',    '左宗棠雞',    false,     false,     false,      '',          false,            0),\n(18,      18,          2.99,  'Local Beer',                 '本地啤酒',    false,     true,      false,      '',            false,           0);\n"
+  02_create_customers_table.sql: "CREATE TABLE customers (\n    id SERIAL NOT NULL PRIMARY KEY,\n    name VARCHAR(30),\n    phone VARCHAR(15),\n    unit_number VARCHAR(15), -- expecting values like bsm or upstairs\n    street_number VARCHAR(15),\n    street_name VARCHAR(30),\n    -- city VARCHAR(15), -- removing due to rare use\n    buzzer_number VARCHAR(15), -- expecting values like bsm or upstairs or A12\n    -- address TEXT, -- the server/sql query will build this for the response\n      -- CONCAT_WS(' ', COALESCE(unit_number, ''), street_number, street_name, COALESCE(buzzer_number, '')) AS full_address\n    note TEXT\n);\n\nINSERT INTO customers \n(name,                 phone,           unit_number,  street_number, street_name,   buzzer_number,  note       ) VALUES \n('John Doe',           '604-123-1234',  '',         '5555',        'Powel St',    '',           ''       ),\n('Christine StClaire', '123-456-7890',  'A12',        '123',         'Maple St',    'A12',          'good tips'),\n('David Hogan',        '778-123-1234',  'BSM',         '5555',        'Powel St',    '',           ''       );"
+  03_create_orders_table.sql: |-
+    CREATE TYPE order_category AS ENUM ('IN', 'OUT', 'DELIVERY');
+
+    CREATE TABLE orders (
+        id SERIAL NOT NULL PRIMARY KEY,
+        subtotal DECIMAL(10, 2) NOT NULL,
+        total DECIMAL(10, 2) NOT NULL,
+        gst DECIMAL(10, 2) NOT NULL DEFAULT 0,
+        pst DECIMAL(10, 2) NOT NULL DEFAULT 0,
+        discount DECIMAL(10, 2) NOT NULL DEFAULT 0,
+        timestamp TIMESTAMPTZ DEFAULT NOW(),
+        category order_category NOT NULL,
+        void BOOLEAN NOT NULL DEFAULT FALSE,
+        paid BOOLEAN NOT NULL DEFAULT FALSE,
+        customizations jsonb DEFAULT NULL,
+        customer_id INT REFERENCES customers(id)
+    );
+
+    INSERT INTO orders
+    (subtotal,    total,   gst,   pst,    discount,   category,       customizations,                                                           customer_id ) VALUES
+    (7.50,        7.87,    0.37,  0.00,   0.00,       'IN',       NULL,                                                                     1           ),
+    (6.00,        6.30,    0.30,  0.00,   0.00,       'OUT',      '[{"name_eng": "add bb sauce", "name_oth": "gaseejup", "price": 1.00}]',  2           );
+  04_create_order_items_table.sql: "CREATE TABLE order_items (\n    id SERIAL NOT NULL PRIMARY KEY,\n    item_id INT NOT NULL REFERENCES items(id), -- FK reference to items table\n    order_id INT NOT NULL REFERENCES orders(id), -- FK reference to orders table\n    quantity INT NOT NULL DEFAULT 1,\n    price DECIMAL(10, 2) NOT NULL -- Store the price of the item including customizations at the time of the order\n);\n\nINSERT INTO order_items \n(item_id, order_id, quantity, price) VALUES\n(1,       1,        1,         4.5),\n(2,       1,        1,         3),\n(3,       2,        1,         5);\n"
+  05_create_customizations_table.sql: |
+    CREATE TABLE customizations (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(100) NOT NULL UNIQUE,
+        price NUMERIC(10, 2) NOT NULL DEFAULT 0,
+        is_user_defined BOOLEAN NOT NULL DEFAULT FALSE
+    );
+
+    INSERT INTO customizations (name, price, is_user_defined) VALUES
+    ('No customization', 0, TRUE),
+    ('Add bb sauce', 2.00, TRUE),
+    ('Less oil', 0.00, TRUE);
+  06_create_order_item_customizations.sql: |-
+    CREATE TABLE order_item_customizations (
+        order_item_id INT NOT NULL REFERENCES order_items(id) ON DELETE CASCADE,
+        customization_id INT NOT NULL REFERENCES customizations(id),
+        PRIMARY KEY (order_item_id, customization_id)
+    );
+
+    INSERT INTO order_item_customizations (order_item_id, customization_id) VALUES
+    (1, 1),
+    (1, 2),
+    (2, 1),
+    (3, 1);
+kind: ConfigMap
+metadata:
+  labels:
+    io.kompose.service: psql
+  name: psql-cm1

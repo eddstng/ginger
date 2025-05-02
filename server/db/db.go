@@ -22,6 +22,7 @@ func InitDBClientFromURL(databaseURL string) error {
 	fmt.Println("Initializing database connection...")
 	conn, err := pgx.Connect(context.Background(), databaseURL)
 	if err != nil {
+		fmt.Println("Error initializing database connection:", err)
 		return fmt.Errorf("failed to initialize DB client %s: %w", databaseURL, err)
 	}
 	SetDBClient(conn)

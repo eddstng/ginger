@@ -34,6 +34,22 @@ services:
       - 6432
     networks:
       - ginger-network
+    
+  ginger-api:
+    image: ginger-api:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - DB_HOST=psql
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=postgres
+    depends_on:
+      - psql
+    networks:
+      - ginger-network
+
 networks:
   ginger-network:
     driver: bridge
