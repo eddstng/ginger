@@ -33,6 +33,7 @@ To start the server for the Ginger API, run the following commands
 $ make server
 ```
 
+k3d:
 ```
 $ kompose convert -f docker-compose.yaml
 $ k3d cluster create ginger (k3d cluster stop ginger, k3d cluster delete my-cluster)
@@ -41,3 +42,8 @@ $ kubectl apply -f .
 $ kubectl get pods 
 $ kubectl port-forward pod/ginger-api-7fd84dd69d-4f4kt 3000:3000
 ```
+
+
+```
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+

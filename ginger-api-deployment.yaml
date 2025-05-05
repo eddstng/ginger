@@ -21,21 +21,18 @@ spec:
         io.kompose.service: ginger-api
     spec:
       containers:
-        - env:
-            - name: DB_HOST
-              value: psql
-            - name: DB_NAME
-              value: postgres
-            - name: DB_PASSWORD
-              value: postgres
-            - name: DB_PORT
-              value: "5432"
-            - name: DB_USER
-              value: postgres
+        - name: ginger-api
           image: ginger-api:latest
-          imagePullPolicy: Never   #"Never pull the image from a remote registry like Docker Hub — use only what’s already available locally."
-          name: ginger-api
+          imagePullPolicy: Never
           ports:
             - containerPort: 3000
               protocol: TCP
+          env:
+            - name: DATABASE_URL
+              value: postgres://postgres:postgres@psql:5432/postgres?sslmode=disable
+          resources:
+            requests:
+              cpu: "100m"
+            limits:
+              cpu: "500m"
       restartPolicy: Always

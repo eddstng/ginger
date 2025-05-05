@@ -13,9 +13,9 @@ services:
       - pg_data:/var/lib/postgresql/data
       - ./database/migrations:/docker-entrypoint-initdb.d/ #-this is not working???
     ports:
-      - "5388:5432"
+      - "5432:5432"
     expose:
-      - 5388
+      - 5432
     networks:
       - ginger-network
 

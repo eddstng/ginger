@@ -25,6 +25,11 @@ func InitializeChiRouter() *chi.Mux {
 	r.Post("/orders", handlers.PostOrderHandler())
 	r.Put("/orders", handlers.PutOrderHandler())
 	r.Get("/order_items", handlers.GetOrderItemsHandler())
+	r.Get("/ping", handlers.PingHandler())
+	r.Get("/cpu", handlers.CpuHandler())
+	r.Get("/delay/{duration}", handlers.DelayHandler())
+	r.Get("/error", handlers.ErrorHandler())
+	r.Get("/status/{status}", handlers.StatusHandler())
 
 	return r
 }
