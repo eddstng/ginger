@@ -16,7 +16,16 @@ func main() {
 	_ = godotenv.Load(".env")
 	fmt.Println("Starting server...")
 
-	databaseURL := os.Getenv("DATABASE_URL")
+	var databaseURL string
+
+	switch {
+	case os.Getenv("TEST_MODE") == "true":
+		databaseURL = os.Getenv("TEST_DATABASE_URL")
+	case os.Getenv("DOCKER") == "true":
+		databaseURL = os.Getenv("DOCKER_DATABASE_URL")
+	default:
+		databaseURL = os.Getenv("DATABASE_URL")
+	}
 
 	var err error
 	for i := 0; i < 10; i++ {

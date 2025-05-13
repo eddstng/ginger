@@ -1,14 +1,17 @@
-.PHONY: test server
+.PHONY: test server db
 
-test:
+test-int:
 	docker compose down psql_test
 	docker compose up -d psql_test
+	go clean -testcache
 	sleep 5
-	cd server && go test ./... -cover
-	# cd server && go test ./repositories/... -cover
-	docker compose down psql_test
+	cd server && TEST_MODE=true go test ./tests/integration/... -cover
+
 
 server:
 	docker compose up -d psql
 	sleep 5
 	cd server && go run main.go
+
+db:
+	docker compose up -d psql

@@ -30,6 +30,7 @@ func InitializeChiRouter() *chi.Mux {
 	r.Get("/delay/{duration}", handlers.DelayHandler())
 	r.Get("/error", handlers.ErrorHandler())
 	r.Get("/status/{status}", handlers.StatusHandler())
-
+	r.Get("/memory", handlers.MemoryHandler())
+	r.Get("/memory/reset", handlers.MemoryLeakHandler())
 	return r
 }

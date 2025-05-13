@@ -13,8 +13,6 @@ resource "kubernetes_deployment" "ginger_api" {
   }
 
   spec {
-    replicas = 1 # Run one instance (pod) of this service
-
     selector {
       match_labels = {
         app = "ginger-api" # Select pods with this label
